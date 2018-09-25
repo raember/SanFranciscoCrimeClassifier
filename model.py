@@ -4,11 +4,16 @@ import tensorflow as tf
 from tensorflow import keras
 
 class model:
+    file = "model.h5"
+
     def _train(self, train_data, train_labels, test_data=None, test_labels=None):
         model = keras.Sequential([
-            keras.layers.Flatten(input_shape=(28, 28)),
-            keras.layers.Dense(128, activation=tf.nn.relu),
-            keras.layers.Dense(10, activation=tf.nn.softmax)
+            keras.layers.Dense(64, activation='relu'),
+            keras.layers.Dense(64, activation='relu'),
+            keras.layers.Dense(10, activation='softmax')
+            # keras.layers.Flatten(input_shape=(28, 28)),
+            # keras.layers.Dense(128, activation=tf.nn.relu),
+            # keras.layers.Dense(10, activation=tf.nn.softmax)
         ])
         print("Constructed model.")
         # optimizer = tf.train.AdamOptimizer()
@@ -27,7 +32,7 @@ class model:
             print("Tested model.")
             print("Test accuracy: {}".format(test_acc))
 
-        model.save("./model.h5")
+        model.save(self.file)
         print("Saved model.")
         return model
 
@@ -36,4 +41,4 @@ class model:
         if train_data is not None and train_labels is not None:
             return model()._train(train_data, train_labels, test_data, test_labels)
         else:
-            return keras.models.load_model("./model.h5", compile=False)
+            return keras.models.load_model(__class__.file, compile=False)
