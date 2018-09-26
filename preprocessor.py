@@ -28,12 +28,13 @@ class CsvFile:
         self.log = log.getLogger(self.__class__.__name__)
         self.filename = filename
         file = self.filename + '.csv'
-        self.log.debug("Reading csv file {}".format(file))
         if csvfile is not None:
             self.df_orig = csvfile.df_orig
+            self.log.info("Linked to data frame of '{}' with shape {}".format(csvfile.filename, self.df_orig.shape))
         else:
+            self.log.debug("Reading csv file '{}'".format(file))
             self.df_orig = self._read_file(file)
-        self.log.info("Read data frame of shape {}".format(self.df_orig.shape))
+            self.log.info("Read data frame of shape {}".format(self.df_orig.shape))
 
     def _read_file(self, file):
         raise NotImplementedError()
@@ -78,7 +79,7 @@ class CsvFile:
             self.log.error("Data not yet parsed")
             return
         file = self._prep_file()
-        self.log.debug("Writing csv file {}".format(file))
+        self.log.debug("Writing csv file '{}'".format(file))
         self.df.to_csv(
             file,
             index_label='Id'
@@ -93,7 +94,7 @@ class CsvFile:
 
     def load(self):
         file = self._prep_file()
-        self.log.debug("Reading csv file {}".format(file))
+        self.log.debug("Reading csv file '{}'".format(file))
         self.df = self._read_prep_file(file)
         self.log.info("Read data frame of shape {}".format(self.df_orig.shape))
 
@@ -114,8 +115,7 @@ class CsvFile:
         return date, day, district, address, latitude, longitude
 
     def toNpArray(self):
-        np.reshape(self.df.values, self.df.shape)
-        self.df.values()
+        return np.reshape(self.df.values, self.df.shape)
 
 
 class TestDataCsvFile(CsvFile):
@@ -164,8 +164,10 @@ class TrainDataCsvFile(CsvFile):
         self.df = self.df_orig.copy()
         self.log.debug('Parsing Dates')
         self.df['Dates'] = self.df['Dates'].apply(self._prepare_date)
-        self.log.debug('Deleting Category')
-        self.df = self.df.drop('Category', axis=1)
+        # self.log.debug('Deleting Category')
+        # self.df = self.df.drop('Category', axis=1)
+        self.log.debug('Parsing Category')
+        self.df['Category'] = self.df['Category'].apply(self._prepare_category)
         self.log.debug('Deleting Descript')
         self.df = self.df.drop('Descript', axis=1)
         self.log.debug('Parsing Day of the week')
