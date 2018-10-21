@@ -9,6 +9,7 @@ import argparse
 from preprocessor import *
 import webbrowser
 import logging
+import sklearn.preprocessing
 logging.basicConfig(
     format='%(asctime)s %(levelname)-8s %(name)20s: %(message)s',
     datefmt='%Y-%m-%d %H:%M:%S',
@@ -51,7 +52,11 @@ for file in [trainfile, trainlabelfile, testfile]:
 # pred = load_prediction_data()
 
 if args.train:
-    mdl = Model().get_model(trainfile.toNpArray(), trainlabelfile.toNpArray())
+    scaler = sklearn.preprocessing.MinMaxScaler(feature_range=(-1, 1))
+    mdl = Model().get_model(
+        scaler.fit_transform(trainfile.toNpArray()).reshape(trainfile.df.shape),
+        trainlabelfile.toNpArray()
+    )
 else:
     mdl = Model().get_model()
 

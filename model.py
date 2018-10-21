@@ -3,6 +3,8 @@
 import tensorflow as tf
 from tensorflow import keras
 import logging as log
+import numpy
+import tensorflow as tf
 
 
 class Model:
@@ -30,6 +32,11 @@ class Model:
                       metrics=['accuracy'])
         self.log.info("Compiled model")
 
+        # Delete data to make the training faster
+        train_data = numpy.delete(train_data, numpy.s_[100::], axis=0)
+        train_labels = numpy.delete(train_labels, numpy.s_[100::], axis=0)
+
+        # Train model
         model.fit(train_data, train_labels, epochs=5)
         self.log.info("Trained model")
 
@@ -38,6 +45,7 @@ class Model:
             self.log.info("Tested model")
             self.log.info("Test accuracy: {}".format(test_acc))
 
+        # TODO: WHY THE FUCK DO YOU STOP WORKING????
         model.save(self.file)
         self.log.info("Saved model")
         return model

@@ -10,6 +10,8 @@ import tensorflow as tf
 import pandas as pd
 import logging as log
 import os
+import sys
+from sklearn.preprocessing import MinMaxScaler
 
 
 class CsvFile:
@@ -21,7 +23,7 @@ class CsvFile:
     DAYS = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
     DISTRICTS = ['BAYVIEW', 'NORTHERN', 'INGLESIDE', 'TARAVAL', 'MISSION', 'CENTRAL', 'TENDERLOIN', 'RICHMOND',
                  'SOUTHERN', 'PARK']
-    min_date = pd.Timestamp('1/1/1970 00:00:00')
+    min_date = pd.Timestamp('1/1/2000 00:00:00')
     sf_tz = pytz.timezone('US/Pacific')
 
     def __init__(self, filename, csvfile=None):
@@ -54,25 +56,26 @@ class CsvFile:
         # date = datetime.strptime(date, '%Y-%m-%d %H:%M:%S')
         # date = date.astimezone(self.sf_tz)
         delta = date - self.min_date
-        return int(delta.total_seconds())
+        maxdelta = datetime(2015, 12, 31) - self.min_date
+        return int(delta.total_seconds())/maxdelta.total_seconds()
 
     def _prepare_day(self, daystr):
-        return self.DAYS.index(daystr)
+        return self.DAYS.index(daystr)/(len(self.DAYS)/2)-1
 
     def _prepare_district(self, daystr):
-        return self.DISTRICTS.index(daystr)
+        return self.DISTRICTS.index(daystr)/(len(self.DISTRICTS)/2)-1
 
     @staticmethod
     def _prepare_address(addressstr):
-        return hash(addressstr)
+        return hash(addressstr)/(sys.maxsize/2)-1
 
     @staticmethod
     def _prepare_latitude(latitudestr):
-        return float(latitudestr)
+        return float(latitudestr)/180
 
     @staticmethod
     def _prepare_longitude(longitudestr):
-        return float(longitudestr)
+        return float(longitudestr)/180
 
     def save(self):
         if self.df is None:
@@ -162,12 +165,18 @@ class TrainDataCsvFile(CsvFile):
 
     def parse(self):
         self.df = self.df_orig.copy()
+        # print(self.df.shape)
+        # print(self.df['Dates'].shape)
+        # print(self.df[['Dates']].shape)
+        # print(self.df.at[1, 'Dates'])
+        # print(self.df.at[1, 'Dates'].minute)
+        # exit(0)
         self.log.debug('Parsing Dates')
         self.df['Dates'] = self.df['Dates'].apply(self._prepare_date)
-        # self.log.debug('Deleting Category')
-        # self.df = self.df.drop('Category', axis=1)
-        self.log.debug('Parsing Category')
-        self.df['Category'] = self.df['Category'].apply(self._prepare_category)
+        self.log.debug('Deleting Category')
+        self.df = self.df.drop('Category', axis=1)
+        # self.log.debug('Parsing Category')
+        # self.df['Category'] = self.df['Category'].apply(self._prepare_category)
         self.log.debug('Deleting Descript')
         self.df = self.df.drop('Descript', axis=1)
         self.log.debug('Parsing Day of the week')
@@ -227,7 +236,7 @@ class TrainLabelsCsvFile(CsvFile):
         self.df = self.df.drop('X', axis=1)
         self.log.debug('Deleting Latitude')
         self.df = self.df.drop('Y', axis=1)
-        self.log.info('Parsed dataframe')
+        self.log.debug('Parsed dataframe')
 
     def get(self, index):
         if self.df is None:
@@ -235,6 +244,3 @@ class TrainLabelsCsvFile(CsvFile):
             return
         district = self.CATEGORIES[self.df.at[index, 'Category']]
         return district
-
-
-# TODO: Make a class for the train data.
