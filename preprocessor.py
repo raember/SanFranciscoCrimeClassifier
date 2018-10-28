@@ -3,7 +3,7 @@
 import csv
 import pytz
 
-from datetime import datetime
+from datetime import datetime, timedelta
 
 import numpy as np
 import tensorflow as tf
@@ -23,7 +23,8 @@ class CsvFile:
     DAYS = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
     DISTRICTS = ['BAYVIEW', 'NORTHERN', 'INGLESIDE', 'TARAVAL', 'MISSION', 'CENTRAL', 'TENDERLOIN', 'RICHMOND',
                  'SOUTHERN', 'PARK']
-    min_date = pd.Timestamp('1/1/2000 00:00:00')
+    min_date = pd.Timestamp('1/1/2003 00:00:00')
+    max_date = pd.Timestamp('1/1/2016 00:00:00')
     sf_tz = pytz.timezone('US/Pacific')
 
     def __init__(self, filename, csvfile=None):
@@ -55,9 +56,9 @@ class CsvFile:
     def _prepare_date(self, date):
         # date = datetime.strptime(date, '%Y-%m-%d %H:%M:%S')
         # date = date.astimezone(self.sf_tz)
+        max_delta = self.max_date - self.min_date
         delta = date - self.min_date
-        maxdelta = datetime(2015, 12, 31) - self.min_date
-        return int(delta.total_seconds())/maxdelta.total_seconds()
+        return int(delta.total_seconds())/max_delta.total_seconds()
 
     def _prepare_day(self, daystr):
         return self.DAYS.index(daystr)/(len(self.DAYS)/2)-1
@@ -105,16 +106,15 @@ class CsvFile:
         if self.df is None:
             self.log.error("Data not yet parsed")
             return
-        date = datetime.fromtimestamp(int(self.df.at[index, 'Dates']))
-        date = date.astimezone(pytz.utc)
+        date = self.df_orig['Dates'][index]
         # date = datetime.strptime(self.df_old.at[index, 'Dates'], '%Y-%m-%d %H:%M:%S')
-        day = self.DAYS[self.df.at[index, 'DayOfWeek']]
+        day = self.df_orig['DayOfWeek'][index]
         # day = self.df_old.at[index, 'DayOfWeek']
-        district = self.DISTRICTS[self.df.at[index, 'PdDistrict']]
+        district = self.df_orig['PdDistrict'][index]
         # district = self.df_old.at[index, 'DayOfWeek']
-        address = self.df_orig.at[index, 'Address']
-        latitude = float(self.df.at[index, 'Y'])
-        longitude = float(self.df.at[index, 'X'])
+        address = self.df_orig['Address'][index]
+        latitude = float(self.df_orig['Y'][index])
+        longitude = float(self.df_orig['X'][index])
         return date, day, district, address, latitude, longitude
 
     def toNpArray(self):
@@ -125,6 +125,9 @@ class TestDataCsvFile(CsvFile):
 
     def __init__(self):
         super().__init__("test")
+
+    def _prep_file(self):
+        return self.filename + '_samples.csv'
 
     def _read_file(self, file):
         return pd.read_csv(
@@ -155,6 +158,9 @@ class TrainDataCsvFile(CsvFile):
 
     def __init__(self, csvfile=None):
         super().__init__("train", csvfile)
+
+    def _prep_file(self):
+        return self.filename + '_samples.csv'
 
     def _read_file(self, file):
         return pd.read_csv(
@@ -202,7 +208,7 @@ class TrainLabelsCsvFile(CsvFile):
         super().__init__("train", csvfile)
 
     def _prep_file(self):
-        return self.filename + '_labels_prep.csv'
+        return self.filename + '_labels.csv'
 
     def _read_file(self, file):
         return pd.read_csv(file)

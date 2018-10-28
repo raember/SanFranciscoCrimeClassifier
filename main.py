@@ -31,16 +31,17 @@ if args.prep_data:
 if args.train:
     logging.debug("Training model")
 
-trainfile = TrainDataCsvFile()
-trainlabelfile = TrainLabelsCsvFile(trainfile)
-testfile = TestDataCsvFile()
-for file in [trainfile, trainlabelfile, testfile]:
+trainsamplesfile = TrainDataCsvFile()
+trainlabelfile = TrainLabelsCsvFile(trainsamplesfile)
+testsamplesfile = TestDataCsvFile()
+for file in [trainsamplesfile, trainlabelfile, testsamplesfile]:
     if args.prep_data or not file.prep_file_exists():
         file.parse()
         file.save()
     else:
         file.load()
-
+# print(trainsamplesfile.get(int(0)))
+# exit(0)
 # for i in range(0, 10):
 #     # (date, _, _, address, lat, long) = data.get(i)
 #     print(trainfile.get(i), trainlabelfile.get(i))
@@ -52,16 +53,17 @@ for file in [trainfile, trainlabelfile, testfile]:
 # pred = load_prediction_data()
 
 if args.train:
-    scaler = sklearn.preprocessing.MinMaxScaler(feature_range=(-1, 1))
+    # scaler = sklearn.preprocessing.MinMaxScaler(feature_range=(-1, 1))
     mdl = Model().get_model(
-        scaler.fit_transform(trainfile.toNpArray()).reshape(trainfile.df.shape),
+        # scaler.fit_transform(trainsamplesfile.toNpArray()).reshape(trainsamplesfile.df.shape),
+        trainsamplesfile.toNpArray(),
         trainlabelfile.toNpArray()
     )
 else:
     mdl = Model().get_model()
 
 # predictions = mdl.predict(testfile.toNpArray())
-predictions = mdl.predict(trainfile.toNpArray())
+predictions = mdl.predict(trainsamplesfile.toNpArray())
 for i in range(0, 19):
     predicted = trainlabelfile.CATEGORIES[np.argmax(predictions[i])]
     actual = trainlabelfile.get(i)
