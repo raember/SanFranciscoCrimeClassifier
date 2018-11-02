@@ -39,9 +39,9 @@ class Model:
         self.log.info("Constructed model")
         # optimizer = tf.train.AdamOptimizer()
         # optimizer = keras.optimizers.SGD(lr=0.1, momentum=0.0, decay=0.0, nesterov=False)
-        optimizer = keras.optimizers.Adam(lr=0.1)
+        optimizer = keras.optimizers.Adam(lr=0.04)
         model.compile(optimizer=optimizer,
-                      loss='categorical_crossentropy',
+                      loss='sparse_categorical_crossentropy',
                       metrics=['accuracy'])
         self.log.info("Compiled model")
 
