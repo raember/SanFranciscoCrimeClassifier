@@ -1,15 +1,14 @@
 #!/bin/env python3
 
+import argparse
+import logging
+
 import tensorflow as tf
 from tensorflow import keras
-import numpy as np
-import matplotlib.pyplot as plt
+
 from model import Model
-import argparse
 from preprocessor import *
-import webbrowser
-import logging
-import sklearn.preprocessing
+
 logging.basicConfig(
     format='%(asctime)s %(levelname)-8s %(name)20s: %(message)s',
     datefmt='%Y-%m-%d %H:%M:%S',
@@ -40,6 +39,13 @@ for file in [trainsamplesfile, trainlabelfile, testsamplesfile]:
         file.save()
     else:
         file.load()
+# for key in trainlabelfile.stats:
+#     trainlabelfile.stats[key] /= trainlabelfile.count
+#     print("{} : {}%".format(trainlabelfile.stats[key] * 100, trainlabelfile.CATEGORIES[key]))
+# exit(0)
+# print(trainsamplesfile.df.columns.values)
+# print(trainlabelfile.df.columns.values)
+# exit(0)
 # print(trainsamplesfile.get(int(0)))
 # exit(0)
 # for i in range(0, 10):

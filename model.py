@@ -1,10 +1,9 @@
 #!/bin/env python3
 
-import tensorflow as tf
+import logging as log
+
 # from tensorflow import keras
 import keras
-import logging as log
-import numpy
 from numpy import ndarray
 
 
@@ -29,9 +28,9 @@ class Model:
         :return:
         """
         model = keras.Sequential([
-            keras.layers.Dense(16, input_shape=(6,), activation='relu'),
-            keras.layers.Dense(64, activation='relu'),
-            keras.layers.Dense(40, activation='softmax')
+            keras.layers.Dense(128, input_shape=(train_data.shape[1],), activation='relu'),
+            keras.layers.Dense(128, activation='relu'),
+            keras.layers.Dense(39, activation='softmax')
             # keras.layers.Flatten(input_shape=(28, 28)),
             # keras.layers.Dense(128, activation=tf.nn.relu),
             # keras.layers.Dense(10, activation=tf.nn.softmax)
@@ -39,7 +38,7 @@ class Model:
         self.log.info("Constructed model")
         # optimizer = tf.train.AdamOptimizer()
         # optimizer = keras.optimizers.SGD(lr=0.1, momentum=0.0, decay=0.0, nesterov=False)
-        optimizer = keras.optimizers.Adam(lr=0.04)
+        optimizer = keras.optimizers.Adam(lr=0.01)
         model.compile(optimizer=optimizer,
                       loss='sparse_categorical_crossentropy',
                       metrics=['accuracy'])

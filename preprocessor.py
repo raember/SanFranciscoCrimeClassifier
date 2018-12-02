@@ -1,25 +1,37 @@
 #!/bin/env python3
 
-import csv
-import pytz
-
-from datetime import datetime, timedelta
-
-import numpy as np
-import tensorflow as tf
-import pandas as pd
 import logging as log
 import os
 import sys
-from sklearn.preprocessing import MinMaxScaler
+from datetime import datetime
+
+import numpy as np
+import pandas as pd
+import pytz
 
 
 class CsvFile:
     filename = ''
-    df = None
-    df_orig = None
+    df: pd.DataFrame = None
+    df_orig: pd.DataFrame = None
     log = None
-    COLS = ['Id', 'Dates', 'DayOfWeek', 'PdDistrict', 'Address', 'X', 'Y']
+    COLS = [
+        'Id',
+        'Dates',
+        'Year',
+        'Month',
+        'Day',
+        'Hour',
+        'Minute',
+        'Weekday',
+        'Season',
+        'Daynight',
+        'DayOfWeek',
+        'PdDistrict',
+        'Address',
+        'X',
+        'Y'
+    ]
     DAYS = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
     DISTRICTS = ['BAYVIEW', 'NORTHERN', 'INGLESIDE', 'TARAVAL', 'MISSION', 'CENTRAL', 'TENDERLOIN', 'RICHMOND',
                  'SOUTHERN', 'PARK']
@@ -53,12 +65,48 @@ class CsvFile:
     def parse(self):
         raise NotImplementedError()
 
-    def _prepare_date(self, date):
+    def _prepare_date(self, date: datetime):
         # date = datetime.strptime(date, '%Y-%m-%d %H:%M:%S')
         # date = date.astimezone(self.sf_tz)
         max_delta = self.max_date - self.min_date
         delta = date - self.min_date
         return int(delta.total_seconds())/max_delta.total_seconds()
+
+    def _transform_date(self):
+        def get_season(month: int):
+            if month < 3 or month == 12:
+                return 0  # December - February: Winter
+            if month < 6:
+                return 1  # March - May: Spring
+            if month < 9:
+                return 2  # June - August: Summer
+            if month < 12:
+                return 3  # September - November: Autumn
+            raise Exception()
+
+        def get_day_night(hour: int):
+            if hour <= 7 or hour >= 7:
+                return 0  # Night
+            return 1  # Day
+
+        self.log.debug("Parsing Year")
+        self.df['Year'] = self.df['Dates'].apply(lambda x: x.year)
+        self.log.debug("Parsing Month")
+        self.df['Month'] = self.df['Dates'].apply(lambda x: x.month)
+        self.log.debug("Parsing Day")
+        self.df['Day'] = self.df['Dates'].apply(lambda x: x.day)
+        self.log.debug("Parsing Hour")
+        self.df['Hour'] = self.df['Dates'].apply(lambda x: x.hour)
+        self.log.debug("Parsing Minute")
+        self.df['Minute'] = self.df['Dates'].apply(lambda x: x.minute)
+        self.log.debug("Parsing Weekday")
+        self.df['Weekday'] = self.df['Dates'].apply(lambda x: x.isoweekday())
+        self.log.debug("Parsing Season")
+        self.df['Season'] = self.df['Dates'].apply(lambda x: get_season(x.month))
+        self.log.debug("Parsing Daynight")
+        self.df['Daynight'] = self.df['Dates'].apply(lambda x: get_day_night(x.day))
+        self.log.debug("Parsing Dates")
+        self.df['Dates'] = self.df['Dates'].apply(self._prepare_date)
 
     def _prepare_day(self, daystr):
         return self.DAYS.index(daystr)/(len(self.DAYS)/2)-1
@@ -140,7 +188,7 @@ class TestDataCsvFile(CsvFile):
     def parse(self):
         self.df = self.df_orig.copy()
         self.log.debug('Parsing Dates')
-        self.df['Dates'] = self.df['Dates'].apply(self._prepare_date)
+        self._transform_date()
         self.log.debug('Parsing Day of the week')
         self.df['DayOfWeek'] = self.df['DayOfWeek'].apply(self._prepare_day)
         self.log.debug('Parsing District')
@@ -178,7 +226,7 @@ class TrainDataCsvFile(CsvFile):
         # print(self.df.at[1, 'Dates'].minute)
         # exit(0)
         self.log.debug('Parsing Dates')
-        self.df['Dates'] = self.df['Dates'].apply(self._prepare_date)
+        self._transform_date()
         self.log.debug('Deleting Category')
         self.df = self.df.drop('Category', axis=1)
         # self.log.debug('Parsing Category')
@@ -201,8 +249,15 @@ class TrainDataCsvFile(CsvFile):
 
 
 class TrainLabelsCsvFile(CsvFile):
-
-    CATEGORIES = ['Id', 'ARSON', 'ASSAULT', 'BAD CHECKS', 'BRIBERY', 'BURGLARY', 'DISORDERLY CONDUCT', 'DRIVING UNDER THE INFLUENCE', 'DRUG/NARCOTIC', 'DRUNKENNESS', 'EMBEZZLEMENT', 'EXTORTION', 'FAMILY OFFENSES', 'FORGERY/COUNTERFEITING', 'FRAUD', 'GAMBLING', 'KIDNAPPING', 'LARCENY/THEFT', 'LIQUOR LAWS', 'LOITERING', 'MISSING PERSON', 'NON-CRIMINAL', 'OTHER OFFENSES', 'PORNOGRAPHY/OBSCENE MAT', 'PROSTITUTION', 'RECOVERED VEHICLE', 'ROBBERY', 'RUNAWAY', 'SECONDARY CODES', 'SEX OFFENSES FORCIBLE', 'SEX OFFENSES NON FORCIBLE', 'STOLEN PROPERTY', 'SUICIDE', 'SUSPICIOUS OCC', 'TREA', 'TRESPASS', 'VANDALISM', 'VEHICLE THEFT', 'WARRANTS', 'WEAPON LAWS']
+    CATEGORIES = ['ARSON', 'ASSAULT', 'BAD CHECKS', 'BRIBERY', 'BURGLARY', 'DISORDERLY CONDUCT',
+                  'DRIVING UNDER THE INFLUENCE', 'DRUG/NARCOTIC', 'DRUNKENNESS', 'EMBEZZLEMENT', 'EXTORTION',
+                  'FAMILY OFFENSES', 'FORGERY/COUNTERFEITING', 'FRAUD', 'GAMBLING', 'KIDNAPPING', 'LARCENY/THEFT',
+                  'LIQUOR LAWS', 'LOITERING', 'MISSING PERSON', 'NON-CRIMINAL', 'OTHER OFFENSES',
+                  'PORNOGRAPHY/OBSCENE MAT', 'PROSTITUTION', 'RECOVERED VEHICLE', 'ROBBERY', 'RUNAWAY',
+                  'SECONDARY CODES', 'SEX OFFENSES FORCIBLE', 'SEX OFFENSES NON FORCIBLE', 'STOLEN PROPERTY', 'SUICIDE',
+                  'SUSPICIOUS OCC', 'TREA', 'TRESPASS', 'VANDALISM', 'VEHICLE THEFT', 'WARRANTS', 'WEAPON LAWS']
+    stats = {}
+    count = 0
 
     def __init__(self, csvfile=None):
         super().__init__("train", csvfile)
@@ -220,10 +275,17 @@ class TrainLabelsCsvFile(CsvFile):
         )
 
     def _prepare_category(self, category):
-        return self.CATEGORIES.index(category)
+        cat = self.CATEGORIES.index(category)
+        if not cat in self.stats:
+            self.stats[cat] = 0.0
+        self.stats[cat] += 1.0
+        self.count += 1
+        return cat
 
     def parse(self):
         self.df = self.df_orig.copy()
+        # self.log.debug('Deleting Id')
+        # self.df = self.df.drop('Id', axis=1)
         self.log.debug('Deleting Dates')
         self.df = self.df.drop('Dates', axis=1)
         self.log.debug('Parsing Category')
