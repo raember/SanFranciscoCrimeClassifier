@@ -1,0 +1,169 @@
+\documentclass[titlepage]{article}
+\usepackage{natbib}
+\bibliographystyle{agsm} % Harvard
+%\bibliographystyle{alpha}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{makeidx}
+\makeindex
+\usepackage{xcolor}
+%\usepackage{termcol}
+%\loadcolors{terminalcolors}
+\input{terminalcolors}
+%xcolors.net/euphrasia
+%collection/hund
+%collection/dawn
+\usepackage{listings}
+\lstset{
+	frame=none,
+%	aboveskip=3mm,
+%	belowskip=3mm,
+	captionpos=b,
+%	showstringspaces=true,
+	breaklines=true,
+	breakatwhitespace=true,
+%	tabsize=4,
+	keepspaces=true,
+	columns=flexible,
+	escapeinside={\%*}{*)},
+	otherkeywords={},
+	deletekeywords={},
+%	numbers=left,
+%	numbersep=5pt,
+%	numberstyle=\color{BackgroundColour},
+	%% Colors and fonts:
+	basicstyle=\footnotesize\ttfamily\color{ForegroundColour!70!BackgroundColour},
+	numberstyle=\tiny\color{ForegroundColour},
+	keywordstyle=\color{Blue},
+	commentstyle=\color{BoldGreen},
+    identifierstyle=\color{ForegroundColour},
+	stringstyle=\color{Red},
+	backgroundcolor=\color{BackgroundColour!95!ForegroundColour},
+	rulecolor=\color{Black}
+}
+\usepackage{varioref}
+\usepackage[colorlinks=true, linkcolor=Blue, citecolor=BoldYellow, plainpages=false, unicode, pdfencoding=auto ,backref=page]{hyperref}
+\usepackage{cleveref}
+
+%\setlength{\parindent}{0pt}
+\pagecolor{BackgroundColour}
+\color{ForegroundColour}
+
+\author{Raphael Emberger}
+\title{Kaggle-Challenge: San Francisco Crime Classification}
+\date{\today}
+
+
+\renewcommand{\theequation}{\Roman{equation}}
+\makeindex
+\begin{document}
+\maketitle
+
+\begin{center}
+\begin{tabular}{r l}
+Date: & \today\\
+Instructor: & Professor Yukawa
+\end{tabular}
+\end{center}
+
+\tableofcontents
+\pagebreak
+
+\section{Preface}\label{s:preface}
+Firstly, I want to express my gratitude to Professor Yukawa for guiding me in this project and to the Kokusaika staff members to arrange my stay here at the Nagaoka University of Technology(subsequently referred to as "NUT").
+I was given the generous opportunity to study at the NUT for one semester, for which I am very grateful. During that time I could choose from the following six Kaggle challenges to work on as project work:
+\begin{itemize}
+\item Toxic Comment Classification Challenge \citep{kgl_toxic_comment}
+\item TalkingData AdTracking Fraud Detection Challenge \citep{kgl_talking_data}
+\item Quora Question Pairs \citep{kgl_quora}
+\item Expedia Hotel Recommendations \citep{kgl_expedia}
+\item San Francisco Crime Classification \citep{kgl_sf_crime}
+\item Inclusive Images Challenge \citep{kgl_inclusive_images}
+\end{itemize}
+Of those, I was most interested in the classification of reported crimes \citep{kgl_sf_crime}, as in my opinion this was an interesting challenge, given the dataset to be only consisting of spatial and time data. As such, this report is dedicated to take on this challenge.
+
+\pagebreak
+\section{Abstract}\label{s:abstract}
+
+\pagebreak
+\section{Introduction}\label{s:intro}
+\subsection{Initial situation}\label{ss:initial_situation}
+The challenge has been out since roughly 3 years and since then, many teams have participated and submitted their results. This lead the leader-board to fill up with 2335 submissions which were ranked and their results displayed online(see "Leaderboard" at \cite{kgl_sf_crime}). The results vary from 34.53877 up to 1.95936(see \ref{ss:loss_function} for the ranking principle).
+
+\subsection{Objective}\label{ss:objective}
+\begin{quote}
+From 1934 to 1963, San Francisco was infamous for housing some of the world's most notorious criminals on the inescapable island of Alcatraz.
+
+Today, the city is known more for its tech scene than its criminal past. But, with rising wealth inequality, housing shortages, and a proliferation of expensive digital toys riding BART to work, there is no scarcity of crime in the city by the bay.
+
+From Sunset to SOMA, and Marina to Excelsior, this competition's dataset provides nearly 12 years of crime reports from across all of San Francisco's neighborhoods. Given time and location, you must predict the category of crime that occurred.
+
+We're also encouraging you to explore the dataset visually. What can we learn about the city through visualizations like this Top Crimes Map? The top most up-voted scripts from this competition will receive official Kaggle swag as prizes. 
+\end{quote}
+\citep{kgl_sf_crime}
+
+\pagebreak
+\section{Theoretical Principles}\label{s:theoretical_principles}
+\subsection{Loss Function}\label{ss:loss_function}
+The ranking of the results on the Kaggle leader board are based on the multi-class logarithmic loss function:
+
+\begin{align}\label{eqn:loss}
+&loss = -\frac1N\sum_{i=1}^N\sum_{j=1}^My_{ij}\log\left(p_{ij}\right)\\
+\nonumber
+N: & \hspace{8pt} \textrm{Number of cases in dataset.}\\
+\nonumber
+M: & \hspace{8pt} \textrm{Number of classes.}\\
+\nonumber
+y_{ij}: & \hspace{8pt} \textrm{Label for class. 1 if $i$ is in $j$. Otherwise 0.}\\
+\nonumber
+p_{ij}: & \hspace{8pt} \textrm{Predicted probability that $i$ belongs to $j$.}
+\end{align}
+
+This basically boils down to a format as follows:
+
+\begin{center}
+\begin{tabular}{c|c|c}
+Class 1 & Class 2 & Class 3\\\hline
+0.24 & 0.48 & 0.38
+\end{tabular}
+\end{center}
+
+With the labels being:
+
+\begin{center}
+\begin{tabular}{c|c|c}
+Class 1 & Class 2 & Class 3\\\hline
+0.00 & 1.00 & 0.00
+\end{tabular}
+\end{center}
+
+When those values are applied to \ref{eqn:loss}, we get a value of 0.49548. Of course, the closer the prediction is to the actual labels, the smaller the loss value will be.
+
+To calculate examples quickly on the python console, the following code can be used:
+\begin{lstlisting}[language=python,otherkeywords={as}]
+import numpy as np
+from sklearn.metrics import log_loss
+labels = np.array([0.0, 1.0, 0.0])
+prediction = np.array([0.04, 0.78, 0.18])
+print(log_loss(labels, prediction))
+\end{lstlisting}
+
+
+\pagebreak
+\section{Methods}\label{s:methods}
+
+\pagebreak
+\section{Results}\label{s:results}
+
+\pagebreak
+\section{Conclusion}\label{s:conclusion}
+
+\pagebreak
+\section{Listings}\label{s:listings}
+\bibliography{reference}\label{bib}
+
+\pagebreak
+\appendix
+\section{Appendix}\label{s:appendix}
+\end{document}

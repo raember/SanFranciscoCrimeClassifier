@@ -1,0 +1,57 @@
+\NeedsTeXFormat{LaTeX2e}
+\ProvidesPackage{termcol}[2018/12/28 LaTeX Terminal Color v1.0]
+
+\RequirePackage{xcolor}
+\RequirePackage{luacode}
+
+\ProcessOptions\relax
+
+\begin{luacode*}
+function parsefile(filename)
+	file = io.open(filename .. ".tex", "w")
+	lines = io.lines(filename .. ".minttyrc")
+	count = 0
+	for line in lines do
+		count = count + 1
+	end
+	if count < 2 then
+		file:write("\\colorlet{BackgroundColour}{white}\n")
+		file:write("\\colorlet{ForegroundColour}{black}\n")
+		file:write("\\colorlet{CursorColour}{black}\n")
+		file:write("\\colorlet{Black}{black}\n")
+		file:write("\\colorlet{BoldBlack}{black!80!white}\n")
+		file:write("\\colorlet{Red}{red}\n")
+		file:write("\\colorlet{BoldRed}{red!80!white}\n")
+		file:write("\\colorlet{Green}{green}\n")
+		file:write("\\colorlet{BoldGreen}{lime}\n")
+		file:write("\\colorlet{Yellow}{yellow}\n")
+		file:write("\\colorlet{BoldYellow}{orange}\n")
+		file:write("\\colorlet{Blue}{blue}\n")
+		file:write("\\colorlet{BoldBlue}{blue!80!white}\n")
+		file:write("\\colorlet{Magenta}{magenta}\n")
+		file:write("\\colorlet{BoldMagenta}{violet}\n")
+		file:write("\\colorlet{Cyan}{cyan}\n")
+		file:write("\\colorlet{BoldCyan}{teal}\n")
+		file:write("\\colorlet{White}{darkgray}\n")
+		file:write("\\colorlet{BoldWhite}{gray}\n")
+		file:close()
+		return
+	end
+	for line in lines do
+		parts = string.split(line, "=")
+		name = parts[1]
+		rgb = parts[2]
+		file:write("\\definecolor{")
+		file:write(name)
+		file:write("}{RGB}{")
+		file:write(rgb)
+		file:write("}\n")
+	end
+	file:close()
+end
+\end{luacode*}
+\newcommand{\loadcolors}[1]{
+	\directlua{parsefile("#1")}
+	\input{#1}
+}
+\endinput
