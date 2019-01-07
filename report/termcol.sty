@@ -8,13 +8,25 @@
 
 \begin{luacode*}
 function parsefile(filename)
+    minttyfilename = filename .. ".minttyrc"
 	file = io.open(filename .. ".tex", "w")
-	lines = io.lines(filename .. ".minttyrc")
 	count = 0
-	for line in lines do
+	for line in io.lines(minttyfilename) do
 		count = count + 1
-	end
-	if count < 2 then
+    end
+    if count > 17 then
+        -- Assume a well formatted mintty export
+        for line in io.lines(minttyfilename) do
+            for color, value in string.gmatch(line, "(.+)=(.+)") do
+                file:write("\\definecolor{")
+                file:write(color)
+                file:write("}{RGB}{")
+                file:write(value)
+                file:write("}\n")
+            end
+		end
+    else
+        -- Assume empty file. Mix colors.
 		file:write("\\colorlet{BackgroundColour}{white}\n")
 		file:write("\\colorlet{ForegroundColour}{black}\n")
 		file:write("\\colorlet{CursorColour}{black}\n")
@@ -34,18 +46,6 @@ function parsefile(filename)
 		file:write("\\colorlet{BoldCyan}{teal}\n")
 		file:write("\\colorlet{White}{darkgray}\n")
 		file:write("\\colorlet{BoldWhite}{gray}\n")
-		file:close()
-		return
-	end
-	for line in lines do
-		parts = string.split(line, "=")
-		name = parts[1]
-		rgb = parts[2]
-		file:write("\\definecolor{")
-		file:write(name)
-		file:write("}{RGB}{")
-		file:write(rgb)
-		file:write("}\n")
 	end
 	file:close()
 end

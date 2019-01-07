@@ -1,21 +1,33 @@
 % Encoding: UTF-8
 
-@misc{kgl_talking_data,
+@Misc{kgl_talking_data,
   author       = {Kaggle},
-  month        = may,
-  year         = {2018},
   title        = {{TalkingData} {AdTracking} {Fraud} {Detection} {Challenge}},
+  month        = mar,
+  year         = {2018},
+  abstract     = {Fraud risk is everywhere, but for companies that advertise online, click fraud can happen at an overwhelming volume, resulting in misleading click data and wasted money. Ad channels can drive up costs by simply clicking on the ad at a large scale. With over 1 billion smart mobile devices in active use every month, China is the largest mobile market in the world and therefore suffers from huge volumes of fradulent traffic.
+
+TalkingData, China’s largest independent big data service platform, covers over 70% of active mobile devices nationwide. They handle 3 billion clicks per day, of which 90% are potentially fraudulent. Their current approach to prevent click fraud for app developers is to measure the journey of a user’s click across their portfolio, and flag IP addresses who produce lots of clicks, but never end up installing apps. With this information, they've built an IP blacklist and device blacklist.
+
+While successful, they want to always be one step ahead of fraudsters and have turned to the Kaggle community for help in further developing their solution. In their 2nd competition with Kaggle, you’re challenged to build an algorithm that predicts whether a user will download an app after clicking a mobile app ad. To support your modeling, they have provided a generous dataset covering approximately 200 million clicks over 4 days!},
   language     = {English},
   organization = {Kaggle, TalkingData},
-  url          = {https://www.kaggle.com/c/talkingdata-adtracking-fraud-detection},
   timestamp    = {2019-01-03},
+  url          = {https://www.kaggle.com/c/talkingdata-adtracking-fraud-detection},
 }
 
 @Misc{kgl_toxic_comment,
   author       = {Kaggle},
   title        = {Toxic {Comment} {Classification} {Challenge}},
-  month        = may,
-  year         = {2018},
+  month        = dec,
+  year         = {2017},
+  abstract     = {Discussing things you care about can be difficult. The threat of abuse and harassment online means that many people stop expressing themselves and give up on seeking different opinions. Platforms struggle to effectively facilitate conversations, leading many communities to limit or completely shut down user comments.
+
+The Conversation AI team, a research initiative founded by Jigsaw and Google (both a part of Alphabet) are working on tools to help improve online conversation. One area of focus is the study of negative online behaviors, like toxic comments (i.e. comments that are rude, disrespectful or otherwise likely to make someone leave a discussion). So far they’ve built a range of publicly available models served through the Perspective API, including toxicity. But the current models still make errors, and they don’t allow users to select which types of toxicity they’re interested in finding (e.g. some platforms may be fine with profanity, but not with other types of toxic content).
+
+In this competition, you’re challenged to build a multi-headed model that’s capable of detecting different types of of toxicity like threats, obscenity, insults, and identity-based hate better than Perspective’s current models. You’ll be using a dataset of comments from Wikipedia’s talk page edits. Improvements to the current model will hopefully help online discussion become more productive and respectful.
+
+Disclaimer: the dataset for this competition contains text that may be considered profane, vulgar, or offensive.},
   language     = {English},
   organization = {Kaggle, Jigsaw/Conversation AI},
   timestamp    = {2019-01-03},
@@ -24,46 +36,148 @@
 
 @Misc{kgl_quora,
   author       = {Kaggle},
-  month        = jun,
-  year         = {2016},
   title        = {Quora {Question} {Pairs}},
+  month        = mar,
+  year         = {2017},
+  abstract     = {Where else but Quora can a physicist help a chef with a math problem and get cooking tips in return? Quora is a place to gain and share knowledge—about anything. It’s a platform to ask questions and connect with people who contribute unique insights and quality answers. This empowers people to learn from each other and to better understand the world.
+
+Over 100 million people visit Quora every month, so it's no surprise that many people ask similarly worded questions. Multiple questions with the same intent can cause seekers to spend more time finding the best answer to their question, and make writers feel they need to answer multiple versions of the same question. Quora values canonical questions because they provide a better experience to active seekers and writers, and offer more value to both of these groups in the long term.
+
+Currently, Quora uses a Random Forest model to identify duplicate questions. In this competition, Kagglers are challenged to tackle this natural language processing problem by applying advanced techniques to classify whether question pairs are duplicates or not. Doing so will make it easier to find high quality answers to questions resulting in an improved experience for Quora writers, seekers, and readers.},
   language     = {English},
   organization = {Kaggle, Quora},
-  url          = {https://www.kaggle.com/c/quora-question-pairs},
   timestamp    = {2019-01-03},
+  url          = {https://www.kaggle.com/c/quora-question-pairs},
 }
 
 @Misc{kgl_expedia,
   author       = {Kaggle},
-  month        = jun,
-  year         = {2017},
   title        = {Expedia {Hotel} {Recommendations}},
+  month        = apr,
+  year         = {2016},
+  abstract     = {Planning your dream vacation, or even a weekend escape, can be an overwhelming affair. With hundreds, even thousands, of hotels to choose from at every destination, it's difficult to know which will suit your personal preferences. Should you go with an old standby with those pillow mints you like, or risk a new hotel with a trendy pool bar? 
+
+Expedia wants to take the proverbial rabbit hole out of hotel search by providing personalized hotel recommendations to their users. This is no small task for a site with hundreds of millions of visitors every month!
+
+Currently, Expedia uses search parameters to adjust their hotel recommendations, but there aren't enough customer specific data to personalize them for each user. In this competition, Expedia is challenging Kagglers to contextualize customer data and predict the likelihood a user will stay at 100 different hotel groups.
+
+The data in this competition is a random selection from Expedia and is not representative of the overall statistics. },
   language     = {English},
   organization = {Kaggle, Expedia},
-  url          = {https://www.kaggle.com/c/expedia-hotel-recommendations},
   timestamp    = {2019-01-03},
+  url          = {https://www.kaggle.com/c/expedia-hotel-recommendations},
 }
 
 @Misc{kgl_inclusive_images,
   author       = {Kaggle},
-  month        = nov,
-  year         = {2018},
   title        = {Inclusive {Images} {Challenge}},
+  month        = sep,
+  year         = {2018},
+  abstract     = {Examples of labeled images from the challenge dataset. Clockwise from top left, image donation by Peter Tester, Mukesh Kumhar, HeeYoung Moon, Sudipta Pramanik, jaturan amnatbuddee, Tomi Familoni and Anu Subhi
+
+Making products that work for people all over the globe is an important value at Google AI. In the field of classification, this means developing models that work well for regions all over the world.
+
+Today, the dataset a model is trained on greatly dictates the performance of that model. A system trained on a dataset that doesn’t represent a broad range of localities could perform worse on images drawn from geographic regions underrepresented in the training data. Google and the industry at large are working to create more diverse & representative datasets. But it is also important for the field to make progress in understanding how to build models when the data available may not cover all audiences a model is meant to reach.
+
+Google AI is challenging Kagglers to develop models that are robust to blind spots that might exist in a data set, and to create image recognition systems that can perform well on test images drawn from different geographic distributions than the ones they were trained on.
+
+By finding ways to teach image classifiers to generalize to new geographic and cultural contexts, we hope the community will make even more progress in inclusive machine learning that benefits everyone, everywhere.
+
+Note: This competition is run in two stages. Refer to the FAQ for an explanation of how this works & the Timeline for specific dates.
+
+This competition is a part of the NIPS 2018 competition track. Winners will be invited to attend and present their solutions at the workshop.
+
+The three geographical distributions of data in this competition. Competitors will train their models on OpenImages, a widely used publicly available benchmark dataset for image classification which happens to be drawn mostly from North America and Western Europe. Models are then evaluated first on Challenge Stage 1 and finally on Challenge Stage 2, each with different un-revealed geographical distributions. In this way, models are stress-tested for their ability to operate inclusively beyond their training data. The distributions of the Challenge datasets pictured above are meant to be illustrative only and do not reflect the true distributions.
+
+Shankar et al. "No Classification without Representation: Assessing Geodiversity Issues in Open Data Sets for the Developing World" NIPS 2017 Workshop on Machine Learning for the Developing World },
   language     = {English},
   organization = {Kaggle, TalkingData},
-  url          = {https://www.kaggle.com/c/inclusive-images-challenge},
   timestamp    = {2019-01-03},
+  url          = {https://www.kaggle.com/c/inclusive-images-challenge},
 }
 
 @Misc{kgl_sf_crime,
   author       = {Kaggle},
-  month        = jun,
-  year         = {2016},
   title        = {San {Francisco} {Crime} {Classification}},
+  month        = jun,
+  year         = {2015},
+  abstract     = {From 1934 to 1963, San Francisco was infamous for housing some of the world's most notorious criminals on the inescapable island of Alcatraz.
+
+Today, the city is known more for its tech scene than its criminal past. But, with rising wealth inequality, housing shortages, and a proliferation of expensive digital toys riding BART to work, there is no scarcity of crime in the city by the bay.
+
+From Sunset to SOMA, and Marina to Excelsior, this competition's dataset provides nearly 12 years of crime reports from across all of San Francisco's neighborhoods. Given time and location, you must predict the category of crime that occurred.
+
+We're also encouraging you to explore the dataset visually. What can we learn about the city through visualizations like this Top Crimes Map? The top most up-voted scripts from this competition will receive official Kaggle swag as prizes. 
+
+Acknowledgements
+
+Kaggle is hosting this competition for the machine learning community to use for fun and practice. This dataset is brought to you by SF OpenData, the central clearinghouse for data published by the City and County of San Francisco.},
   language     = {English},
   organization = {Kaggle, TalkingData},
-  url          = {https://www.kaggle.com/c/sf-crime},
   timestamp    = {2019-01-03},
+  url          = {https://www.kaggle.com/c/sf-crime},
+}
+
+@Misc{efavdb_sf_crime_prediction,
+  author       = {Damien Ramunno-Johnson},
+  title        = {Machine learning to predict {San Francisco} crime},
+  month        = jul,
+  year         = {2015},
+  abstract     = {In today’s post, we document our submission to the recent Kaggle competition aimed at predicting the category of San Francisco crimes, given only their time and location of occurrence. As a reminder, Kaggle is a site where one can compete with other data scientists on various data challenges.  We took this competition as an opportunity to explore the Naive Bayes algorithm. With the few steps discussed below, we were able to quickly move from the middle of the pack to the top 33% on the competition leader board, all the while continuing with this simple model!},
+  language     = {English},
+  organization = {EFAVDB},
+  timestamp    = {2019-01-06},
+  url          = {http://efavdb.com/predicting-san-francisco-crimes/},
+}
+
+@Misc{slideshare_sf_crime_prediction,
+  author       = {Rameer Darekar and Rohit Dandona and Vigensh Sureshbabu},
+  title        = {Predicting and {Analysis} of {Crime} in {San Francisco}},
+  month        = sep,
+  year         = {2016},
+  language     = {English},
+  organization = {SlideShare},
+  timestamp    = {2019-01-06},
+  url          = {https://www.slideshare.net/SameerDarekar1/san-francisco-crime-analysis-classification-kaggle-contest},
+}
+
+@Misc{mattmurray_blog,
+  author    = {Matt Murray},
+  title     = {Classifying {San Francisco} {Crime Incidents}},
+  abstract  = {Given the location and date & time it occurred, could I classify the type of crime being reported?
+
+For this project, I wanted to see if I could apply classification algorithms to the San Francisco crime data available from the SF Open Data website.
+
+The data set I downloaded contained almost 200,000 police incidents recorded between January 2016 and April 2017, and contained data points for the category of crime, a short description, latitude & longitude coordinates, the police district the crime occurred in, and the date & time it was reported.},
+  timestamp = {2019-01-06},
+  url       = {http://mattmurray.net/classifying-san-francisco-crime-incidents/},
+}
+
+@Misc{keras,
+  author    = {Keras},
+  title     = {{The Python Deep Learning library}},
+  abstract  = {You have just found Keras.
+
+Keras is a high-level neural networks API, written in Python and capable of running on top of TensorFlow, CNTK, or Theano. It was developed with a focus on enabling fast experimentation. Being able to go from idea to result with the least possible delay is key to doing good research.
+
+Use Keras if you need a deep learning library that:
+
+    Allows for easy and fast prototyping (through user friendliness, modularity, and extensibility).
+    Supports both convolutional networks and recurrent networks, as well as combinations of the two.
+    Runs seamlessly on CPU and GPU.
+
+Read the documentation at Keras.io.
+
+Keras is compatible with: Python 2.7-3.6.},
+  timestamp = {2019-01-07},
+  url       = {https://keras.io/},
+}
+
+@Misc{tensorflow,
+  author    = {Tensorflow},
+  title     = {An open source machine learning framework for everyone},
+  timestamp = {2019-01-07},
+  url       = {https://www.tensorflow.org/},
 }
 
 @Comment{jabref-meta: databaseType:bibtex;}

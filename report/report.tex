@@ -1,10 +1,31 @@
-\documentclass[titlepage]{article}
+\documentclass[titlepage,12pt]{article}
 \usepackage{natbib}
 \bibliographystyle{agsm} % Harvard
 %\bibliographystyle{alpha}
 \usepackage{amsmath}
 \usepackage{amsfonts}
 \usepackage{amssymb}
+\usepackage{fontspec}
+\setmainfont[
+    Ligatures=TeX,
+    Numbers={OldStyle, Proportional}
+]{DejaVu Sans}
+\setsansfont[
+    Ligatures=TeX,
+    Numbers={OldStyle, Proportional}
+]{DejaVu Sans}
+\setmonofont[
+    Ligatures=TeX,
+    Numbers={OldStyle, Proportional}
+]{DejaVu Sans Mono}
+%\usepackage{libertine}
+%\renewcommand*{\familydefault}{\sfdefault}
+%\usepackage{fontspec}
+%\newcommand{\fb}{\fontspec{Latin Modern Roman}}
+%\newcommand{\TU/lmr/m/n/17.28}{\fontspec{Latin Modern Roman}}
+%\newcommand{\TU/lmr/m/n/12}{\fontspec{Latin Modern Roman}}
+%\newcommand{\TU/lmr/m/n/8}{\fontspec{Latin Modern Roman}}
+%\newcommand{\TU/lmr/m/n/6}{\fontspec{Latin Modern Roman}}
 \usepackage{makeidx}
 \makeindex
 \usepackage{xcolor}
@@ -20,18 +41,18 @@
 %	aboveskip=3mm,
 %	belowskip=3mm,
 	captionpos=b,
-%	showstringspaces=true,
+	showstringspaces=false,
 	breaklines=true,
 	breakatwhitespace=true,
 %	tabsize=4,
 	keepspaces=true,
-	columns=flexible,
+	columns=fullflexible,
 	escapeinside={\%*}{*)},
-	otherkeywords={},
+	otherkeywords={self},
 	deletekeywords={},
-%	numbers=left,
-%	numbersep=5pt,
-%	numberstyle=\color{BackgroundColour},
+	numbers=left,
+	numbersep=5pt,
+	numberstyle=\color{BackgroundColour!95!ForegroundColour},
 	%% Colors and fonts:
 	basicstyle=\footnotesize\ttfamily\color{ForegroundColour!70!BackgroundColour},
 	numberstyle=\tiny\color{ForegroundColour},
@@ -42,6 +63,8 @@
 	backgroundcolor=\color{BackgroundColour!95!ForegroundColour},
 	rulecolor=\color{Black}
 }
+\newcommand{\inlinelisting}[1]{\colorbox{BackgroundColour!95!ForegroundColour}{\color{ForegroundColour!70!BackgroundColour}\lstinline[columns=fixed,language=python]{#1}}}
+\usepackage{pgfplotstable}
 \usepackage{varioref}
 \usepackage[colorlinks=true, linkcolor=Blue, citecolor=BoldYellow, plainpages=false, unicode, pdfencoding=auto ,backref=page]{hyperref}
 \usepackage{cleveref}
@@ -81,7 +104,7 @@ I was given the generous opportunity to study at the NUT for one semester, for w
 \item San Francisco Crime Classification \citep{kgl_sf_crime}
 \item Inclusive Images Challenge \citep{kgl_inclusive_images}
 \end{itemize}
-Of those, I was most interested in the classification of reported crimes \citep{kgl_sf_crime}, as in my opinion this was an interesting challenge, given the dataset to be only consisting of spatial and time data. As such, this report is dedicated to take on this challenge.
+Of those, I was most interested in the classification of reported crimes \citep{kgl_sf_crime}, as in my opinion this was an interesting challenge, given the dataset to be only consisting of time and spatial data. As such, this report is dedicated to take on this challenge.
 
 \pagebreak
 \section{Abstract}\label{s:abstract}
@@ -89,9 +112,18 @@ Of those, I was most interested in the classification of reported crimes \citep{
 \pagebreak
 \section{Introduction}\label{s:intro}
 \subsection{Initial situation}\label{ss:initial_situation}
-The challenge has been out since roughly 3 years and since then, many teams have participated and submitted their results. This lead the leader-board to fill up with 2335 submissions which were ranked and their results displayed online(see "Leaderboard" at \cite{kgl_sf_crime}). The results vary from 34.53877 up to 1.95936(see \ref{ss:loss_function} for the ranking principle).
+The challenge has been out since roughly 3 years and since then, many teams have participated and submitted their results. This lead the leader-board to fill up with 2335 submissions which were ranked and their results displayed online(see "Leaderboard" at \cite{kgl_sf_crime}). The results vary from 34.53877 up to 1.95936, where the sample submission with a value of 32.89183 reaches rank 2241(see \ref{ss:loss_function} for the ranking principle).
+
+When searching on the internet for documents about that challenge, there are multiple such projects to be found. For example:
+\begin{itemize}
+\item A paper from \cite{slideshare_sf_crime_prediction}. 2 Naïve Bayes, Decision Tree, Random Forest and Support Vector Machines classifiers were used. Reached highest accuracy of 23.16\% with a Decision Tree.
+\item A blog post from \cite{efavdb_sf_crime_prediction}. In that project, a Bernoulli Naïves Bayes classifier was used. Reached a log-loss score of 2.58.
+\item A blog post from \cite{mattmurray_blog}. AdaBoost, Bagging, Extra Trees, Gradient Boosting, K-Nearest Neighbors, Random Forest classifiers and Logistic Regresson were used in this project. The dataset was enriched greatly by adding 9 other datasets(features like house prices, income, police and public transportation stations, healthcare center and homeless shelter locations, altitudes). Highest accuracy achieved with Gradient Boosted Trees, resulting in 45.7\%.
+\end{itemize}
 
 \subsection{Objective}\label{ss:objective}
+The objective of this project is to produce a system that is capable of classifiying the type of crime based off of the provided data consisting of date time stamps, the name of the district and street as well as the coordinates of the registered report. To quote \cite{kgl_sf_crime}:
+
 \begin{quote}
 From 1934 to 1963, San Francisco was infamous for housing some of the world's most notorious criminals on the inescapable island of Alcatraz.
 
@@ -101,7 +133,8 @@ From Sunset to SOMA, and Marina to Excelsior, this competition's dataset provide
 
 We're also encouraging you to explore the dataset visually. What can we learn about the city through visualizations like this Top Crimes Map? The top most up-voted scripts from this competition will receive official Kaggle swag as prizes. 
 \end{quote}
-\citep{kgl_sf_crime}
+
+Although the Kaggle challenge includes submitting an softmax array of the predictions of the test data, this objectives shifts towards self evaluation on the training set. The reason for this is that the challenge is already over and self evaluation was considered an easier approach to measure the success of the system.
 
 \pagebreak
 \section{Theoretical Principles}\label{s:theoretical_principles}
@@ -141,7 +174,7 @@ Class 1 & Class 2 & Class 3\\\hline
 When those values are applied to \ref{eqn:loss}, we get a value of 0.49548. Of course, the closer the prediction is to the actual labels, the smaller the loss value will be.
 
 To calculate examples quickly on the python console, the following code can be used:
-\begin{lstlisting}[language=python,otherkeywords={as}]
+\begin{lstlisting}[language=python,otherkeywords={as},label=lst:loglosscalculation,caption={Quick Log Loss Calculation}]
 import numpy as np
 from sklearn.metrics import log_loss
 labels = np.array([0.0, 1.0, 0.0])
@@ -152,6 +185,206 @@ print(log_loss(labels, prediction))
 
 \pagebreak
 \section{Methods}\label{s:methods}
+\subsection{Dataset}\label{ss:dataset}
+The Kaggle challenge \citep{kgl_sf_crime} provides 3 files on their site under "Data":
+\begin{itemize}
+\item \textbf{sampleSubmission.csv}(884k x 40): A sample file, demonstrating the expected format for submissions to the challenge. Consists of an array of the softmax prediction of each sample in the \textbf{test.csv}.
+\item \textbf{test.csv}(884k x 7): The unlabeled sample subset of the data.
+\item \textbf{train.csv}(878k x 9): The labeled sample subset of the data.
+\end{itemize}
+The data itself consists of the gathered crime reports of the San Francisco Police Department from January 1st 2003 through May 13th 2015, where the odd weeks belong to the \textbf{test.csv} and the even weeks to \textbf{train.csv}.
+
+Here are the 10 first rows of the respective data files:
+
+\begin{table}[htbp]
+\centering
+\setlength\tabcolsep{2pt}
+\begin{tabular}{|cc|}\hline
+Id&\textit{one column per class}\\\hline\hline
+0&\textit{zeros, except the second last columns being all ones}\\
+1&\vdots\\
+2&\vdots\\
+\vdots&\vdots\\\hline
+\end{tabular}
+\caption{sampleSubmission.csv(first 10 rows)}
+\label{tab:sampleSubmission.csv}
+\end{table}
+
+\begin{table}[htbp]
+\centering
+\scriptsize
+\setlength\tabcolsep{2pt}
+\begin{tabular}{|ccccccc|}\hline
+Id&Dates&DayOfWeek&PdDistrict&Address&X&Y\\\hline\hline
+0&2015-05-10 23:59:00&Sunday&BAYVIEW&2000 Block of THOMAS AV&-122.39958770419&37.7350510103906\\
+1&2015-05-10 23:51:00&Sunday&BAYVIEW&3RD ST / REVERE AV&-122.391522893042&37.7324323864471\\
+2&2015-05-10 23:50:00&Sunday&NORTHERN&2000 Block of GOUGH ST&-122.426001954961&37.7922124386284\\
+3&2015-05-10 23:45:00&Sunday&INGLESIDE&4700 Block of MISSION ST&-122.437393972517&37.7214120621391\\
+4&2015-05-10 23:45:00&Sunday&INGLESIDE&4700 Block of MISSION ST&-122.437393972517&37.7214120621391\\
+5&2015-05-10 23:40:00&Sunday&TARAVAL&BROAD ST / CAPITOL AV&-122.459023622429&37.7131719025215\\
+6&2015-05-10 23:30:00&Sunday&INGLESIDE&100 Block of CHENERY ST&-122.42561645123&37.7393505144628\\
+7&2015-05-10 23:30:00&Sunday&INGLESIDE&200 Block of BANKS ST&-122.412652039792&37.7397501563121\\
+8&2015-05-10 23:10:00&Sunday&MISSION&2900 Block of 16TH ST&-122.418700097043&37.7651649409646\\\hline
+\end{tabular}
+\caption{test.csv(first 10 rows)}
+\label{tab:test.csv}
+\end{table}
+
+\begin{table}[htbp]
+\centering
+\scriptsize
+\setlength\tabcolsep{2pt}
+\begin{tabular}{|ccccc}\hline
+Dates&Category&Descript&DayOfWeek&PdDistrict\\\hline\hline
+2015-05-13 23:53:00&WARRANTS&WARRANT ARREST&Wednesday&NORTHERN\\
+2015-05-13 23:53:00&OTHER OFFENSES&TRAFFIC VIOLATION ARREST&Wednesday&NORTHERN\\
+2015-05-13 23:33:00&OTHER OFFENSES&TRAFFIC VIOLATION ARREST&Wednesday&NORTHERN\\
+2015-05-13 23:30:00&LARCENY/THEFT&GRAND THEFT FROM LOCKED AUTO&Wednesday&NORTHERN\\
+2015-05-13 23:30:00&LARCENY/THEFT&GRAND THEFT FROM LOCKED AUTO&Wednesday&PARK\\
+2015-05-13 23:30:00&LARCENY/THEFT&GRAND THEFT FROM UNLOCKED AUTO&Wednesday&INGLESIDE\\
+2015-05-13 23:30:00&VEHICLE THEFT&STOLEN AUTOMOBILE&Wednesday&INGLESIDE\\
+2015-05-13 23:30:00&VEHICLE THEFT&STOLEN AUTOMOBILE&Wednesday&BAYVIEW\\
+2015-05-13 23:00:00&LARCENY/THEFT&GRAND THEFT FROM LOCKED AUTO&Wednesday&RICHMOND\\
+2015-05-13 23:00:00&LARCENY/THEFT&GRAND THEFT FROM LOCKED AUTO&Wednesday&CENTRAL\\\hline
+\end{tabular}
+
+\begin{tabular}{cccc|}\hline
+Resolution&Address&X&Y\\\hline\hline
+"ARREST, BOOKED"&OAK ST / LAGUNA ST&-122.425891675136&37.7745985956747\\
+"ARREST, BOOKED"&OAK ST / LAGUNA ST&-122.425891675136&37.7745985956747\\
+"ARREST, BOOKED"&VANNESS AV / GREENWICH ST&-122.42436302145&37.8004143219856\\
+NONE&1500 Block of LOMBARD ST&-122.42699532676599&37.80087263276921\\
+NONE&100 Block of BRODERICK ST&-122.438737622757&37.771541172057795\\
+NONE&0 Block of TEDDY AV&-122.40325236121201&37.713430704116\\
+NONE&AVALON AV / PERU AV&-122.423326976668&37.7251380403778\\
+NONE&KIRKWOOD AV / DONAHUE ST&-122.371274317441&37.7275640719518\\
+NONE&600 Block of 47TH AV&-122.508194031117&37.776601260681204\\
+NONE&JEFFERSON ST / LEAVENWORTH ST&-122.419087676747&37.8078015516515\\\hline
+\end{tabular}
+\caption{train.csv(first 10 rows)}
+\label{tab:train.csv}
+\end{table}
+
+The two datasets differ slightly in their columns. The training dataset has added the labels(Category) but also Descript and Resolution, which will be ignored for this project.
+
+The labels consist of 39 classes of crimes:
+
+\begin{table}[htbp]
+\centering
+\scriptsize
+\setlength\tabcolsep{2pt}
+\begin{tabular}{|lll|}\hline
+ARSON&ASSAULT&BAD CHECKS\\
+BRIBERY&BURGLARY&DISORDERLY CONDUCT\\
+DRIVING UNDER THE INFLUENCE&DRUG/NARCOTIC&DRUNKENNESS\\
+EMBEZZLEMENT&EXTORTION&FAMILY OFFENSES\\
+FORGERY/COUNTERFEITING&FRAUD&GAMBLING\\
+KIDNAPPING&LARCENY/THEFT&LIQUOR LAWS\\
+LOITERING&MISSING PERSON&NON-CRIMINAL\\
+OTHER OFFENSES&PORNOGRAPHY/OBSCENE MAT&PROSTITUTION\\
+RECOVERED VEHICLE&ROBBERY&RUNAWAY\\
+SECONDARY CODES&SEX OFFENSES FORCIBLE&SEX OFFENSES NON FORCIBLE\\
+STOLEN PROPERTY&SUICIDE&SUSPICIOUS OCC\\
+TREA&TRESPASS&VANDALISM\\
+VEHICLE THEFT&WARRANTS&WEAPON LAWS\\
+\hline
+\end{tabular}
+\caption{Crime classes}
+\label{tab:lables}
+\end{table}
+
+The classes occur in an unbalanced matter: "Larceny/Theft" is the most predominant recorded crime, taking up nearly 19.92\% of the dataset. For this reason, 19.92\% is considered the bottom line of accuracy.
+
+\subsection{First Approach}\label{ss:first_approach}
+For the first approach a \cite{keras} model on top of \cite{tensorflow} was chosen. For this, the first step was to pre-process the dataset to standardize it and properly feed it to the neural network.
+
+\subsubsection{Pre-Processing}\label{sss:preprocessing}
+To handle CSV files properly, a \inlinelisting{class CsvFile} class was created that represents a single csv file. When instantiated, it loads the csv file as a Pandas \inlinelisting{DataFrame}. Apart from an abstract \inlinelisting{def parse(self)} method, it implements per data field methods that prepare the respective column for a conversion to a numerical representation(i.e. \inlinelisting{def _prepare_date(self, date: datetime) -> datetime}). It also defines \inlinelisting{def toNpArray(self) -> ndarray}, which allows to access the data as a \inlinelisting{numpy} array.
+
+From this basic class, three other classes were derived:
+\begin{itemize}
+\item \inlinelisting{class TestDataCsvFile}\\
+This class represents the \texttt{test.csv} file. It implements the missing \inlinelisting{parse(self)} method as follows:\\
+\begin{lstlisting}[language=python,label=lst:testdatacsvfile_parse,caption={Parse method if the TestDataCsvFile class}]
+def parse(self):
+    self.df = self.df_orig.copy()
+    self.log.debug('Parsing Dates')
+    self._transform_date()
+    self.log.debug('Parsing Day of the week')
+    self.df['DayOfWeek'] = self.df['DayOfWeek'].apply(self._prepare_day)
+    self.log.debug('Parsing District')
+    self.df['PdDistrict'] = self.df['PdDistrict'].apply(self._prepare_district)
+    self.log.debug('Parsing Address')
+    self.df['Address'] = self.df['Address'].apply(self._prepare_address)
+    self.log.debug('Parsing Longitude')
+    self.df['X'] = self.df['X'].apply(self._prepare_longitude)
+    self.log.debug('Parsing Latitude')
+    self.df['Y'] = self.df['Y'].apply(self._prepare_latitude)
+    self.log.info('Parsed dataframe')
+\end{lstlisting}
+\item \inlinelisting{class TrainDataCsvFile}\\
+This class represents the sample part of the \texttt{train.csv} file. It implements the \inlinelisting{parse(self)} method in a similar fashion.
+\item \inlinelisting{class TrainLabelsCsvFile}\\
+This class represents the label part of the \texttt{train.csv} file. When instantiating, it can make a link to an already existing \inlinelisting{TrainDataCsvFile} class, to prevent loading the same csv file a second time. It implements the \inlinelisting{parse(self)} method in a similar fashion.
+\end{itemize}
+
+\subsubsection{Keras Model}\label{sss:keras_model}
+To build the model, a dedicated \inlinelisting{Model} class was created. This class operates as a Keras model factory, using the \inlinelisting{def get_model()} method to either create and train a model or load it's weights and parameters from a file and return the model.
+
+The layers of the model changed greatly over time. This is the the last version of the model:
+
+\begin{lstlisting}[language=python,label=lst:keras_model,caption={Keras model}]
+model = keras.Sequential([
+    keras.layers.Dense(128, input_shape=(train_data.shape[1],), activation='relu'),
+    keras.layers.Dense(128, activation='relu'),
+    keras.layers.Dense(39, activation='softmax')
+    # keras.layers.Flatten(input_shape=(28, 28)),
+    # keras.layers.Dense(128, activation=tf.nn.relu),
+    # keras.layers.Dense(10, activation=tf.nn.softmax)
+])
+
+optimizer = keras.optimizers.Adam(lr=0.01)
+model.compile(optimizer=optimizer,
+              loss='sparse_categorical_crossentropy',
+              metrics=['accuracy'])
+self.log.info("Compiled model")
+model.fit(train_data, train_labels, epochs=5, batch_size=20)
+self.log.info("Trained model")
+\end{lstlisting}
+
+\subsubsection{Classification process}\label{sss:classification_process}
+The classification process was easily written using the classes created in \ref{sss:preprocessing} and \ref{sss:keras_model}:
+
+\begin{lstlisting}[language=python,label=lst:main_py,caption={main.py}]
+trainsamplesfile = TrainDataCsvFile()
+trainlabelfile = TrainLabelsCsvFile(trainsamplesfile)
+testsamplesfile = TestDataCsvFile()
+for file in [trainsamplesfile, trainlabelfile, testsamplesfile]:
+    if args.prep_data or not file.prep_file_exists():
+        file.parse()
+        file.save()
+    else:
+        file.load()
+
+if args.train:
+    mdl = Model().get_model(
+        trainsamplesfile.toNpArray(),
+        trainlabelfile.toNpArray()
+    )
+else:
+    mdl = Model().get_model()
+
+# predictions = mdl.predict(testfile.toNpArray())
+predictions = mdl.predict(trainsamplesfile.toNpArray())
+for i in range(0, 19):
+    predicted = trainlabelfile.CATEGORIES[np.argmax(predictions[i])]
+    actual = trainlabelfile.get(i)
+    logging.info("{} ?= {}".format(actual, predicted))
+\end{lstlisting}
+
+When using this setup, training for even 25 epochs did not raise the accuracy in any way. The accuracy value usually hovered barely below 20\%, which coincides with the bottom line described in \ref{ss:dataset}.
+
+After multiple unfruitful tries, this approach had to be abandoned because of the lack in progress due to lack of knowledge and experience with neural networks.
 
 \pagebreak
 \section{Results}\label{s:results}
@@ -162,6 +395,12 @@ print(log_loss(labels, prediction))
 \pagebreak
 \section{Listings}\label{s:listings}
 \bibliography{reference}\label{bib}
+\newpage
+\listoffigures\label{sec:ListOfFigures}
+\newpage
+\listoftables\label{sec:ListOfTables}
+\newpage
+\lstlistoflistings\label{sec:ListOfListings}
 
 \pagebreak
 \appendix
