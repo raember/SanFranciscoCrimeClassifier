@@ -1,97 +1,121 @@
+#!/bin/env python3
+
+from typing import Tuple
+
+import keras
 import numpy as np
 import pandas as pd
 from sklearn import preprocessing
+from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import log_loss, accuracy_score
 from sklearn.naive_bayes import BernoulliNB
+
+MINUTECOLUMNS = {}
+for min_int in range(0, 60):
+    MINUTECOLUMNS[min_int] = "m{}".format(min_int)
+HOURCOLUMNS = {}
+for hour_int in range(0, 24):
+    HOURCOLUMNS[hour_int] = "H{}".format(hour_int)
+DAYCOLUMNS = {}
+for day_int in range(0, 30):
+    DAYCOLUMNS[day_int] = "D{}".format(day_int + 1)
+MONTHCOLUMNS = {}
+for month_int in range(0, 11):
+    MONTHCOLUMNS[month_int] = "M{}".format(month_int + 1)
+YEARCOLUMNS = {}
+for year_int in range(2003, 2015):
+    YEARCOLUMNS[year_int] = "Y{}".format(year_int)
+
+
+def preprocess_dataframe(data: pd.DataFrame) -> Tuple[pd.DataFrame, list]:
+    print("Binarize data")
+    minute = pd.get_dummies(data.Dates.dt.minute).rename(columns=MINUTECOLUMNS)
+    hour = pd.get_dummies(data.Dates.dt.hour).rename(columns=HOURCOLUMNS)
+    day = pd.get_dummies(data.Dates.dt.day).rename(columns=DAYCOLUMNS)
+    month = pd.get_dummies(data.Dates.dt.month).rename(columns=MONTHCOLUMNS)
+    year = pd.get_dummies(data.Dates.dt.year).rename(columns=YEARCOLUMNS)
+    weekdays = pd.get_dummies(data.DayOfWeek)
+    districts = pd.get_dummies(data.PdDistrict)
+    x = data.X
+    y = data.Y
+    print("Assemble new array")
+    new_data = pd.concat([minute, hour, day, month, year, weekdays, districts, x, y], axis=1)
+    columns = new_data.keys().tolist()
+    return new_data, columns
+
+
+def evaluate(prediction, labels):
+    print("LogLoss: {}".format(log_loss(labels, prediction)))
+    predicted_crime = np.argmax(prediction, axis=1)
+    print("Accuracy: {}%".format(accuracy_score(labels, predicted_crime) * 100))
+
 
 print("Load Data with pandas, and parse the first column into datetime")
 train = pd.read_csv('train.csv', parse_dates=['Dates'])
 test = pd.read_csv('test.csv', parse_dates=['Dates'])
 
-HOURCOLUMNS = {}
-for hour_int in range(1, 24 + 1):
-    HOURCOLUMNS[hour_int - 1] = "H{}".format(hour_int)
-DAYCOLUMNS = {}
-for day_int in range(1, 31 + 1):
-    DAYCOLUMNS[day_int] = "D{}".format(day_int)
-MONTHCOLUMNS = {}
-for month_int in range(1, 12 + 1):
-    MONTHCOLUMNS[month_int] = "M{}".format(month_int)
-
-############################################################
-
 print("Convert crime labels to numbers")
 le_crime = preprocessing.LabelEncoder()
 crime = le_crime.fit_transform(train.Category)
 
-print("Get binarized weekdays, districts, and hours")
-weekdays = pd.get_dummies(train.DayOfWeek)
-districts = pd.get_dummies(train.PdDistrict)
-hour = pd.get_dummies(train.Dates.dt.hour).rename(columns=HOURCOLUMNS)
-day = pd.get_dummies(train.Dates.dt.day).rename(columns=DAYCOLUMNS)
-month = pd.get_dummies(train.Dates.dt.month).rename(columns=MONTHCOLUMNS)
-x = train.X
-y = train.Y
-
-print("Build new array")
-train_data: pd.DataFrame = pd.concat([hour, weekdays, day, month, districts, x, y], axis=1)
-print(train_data.keys())
-# exit(0)
+print("Build training data")
+train_data, features = preprocess_dataframe(train)
 train_data['crime'] = crime
 
-print("Repeat for test data")
-weekdays = pd.get_dummies(test.DayOfWeek)
-districts = pd.get_dummies(test.PdDistrict)
-hour = pd.get_dummies(test.Dates.dt.hour).rename(columns=HOURCOLUMNS)
-day = pd.get_dummies(test.Dates.dt.day).rename(columns=DAYCOLUMNS)
-month = pd.get_dummies(test.Dates.dt.month).rename(columns=MONTHCOLUMNS)
+print("Features[{}]: {}".format(len(features), np.array(features)))
 
-test_data: pd.DataFrame = pd.concat([hour, weekdays, day, month, districts, x, y], axis=1)
-
-# training, validation = train_test_split(train_data, train_size=.60)
+print("Split up training data")
+# training, validation = train_test_split(train_data, test_size=.20)
 training = train_data
 validation = train_data
 
-############################################################
-print("Bernoulli 1")
+# Bernoulli Naïve Bayes
+print("Train Bernoulli Naïve Bayes classifier")
+air_bnb = BernoulliNB()
+air_bnb.fit(training[features], training['crime'])
 
-features = ['Friday', 'Monday', 'Saturday', 'Sunday', 'Thursday', 'Tuesday',
-            'Wednesday', 'BAYVIEW', 'CENTRAL', 'INGLESIDE', 'MISSION',
-            'NORTHERN', 'PARK', 'RICHMOND', 'SOUTHERN', 'TARAVAL', 'TENDERLOIN']
-features += HOURCOLUMNS.values()
-features += DAYCOLUMNS.values()
-features += MONTHCOLUMNS.values()
+print("Predict labels")
+predicted = air_bnb.predict_proba(validation[features])
 
-model = BernoulliNB()
-model.fit(training[features], training['crime'])
-predicted = np.array(model.predict_proba(validation[features]))
-print(log_loss(validation['crime'], predicted))
-predicted_crime = np.argmax(predicted, axis=1)
-print(accuracy_score(validation['crime'], predicted_crime))
+print("Validate prediction")
+evaluate(predicted, validation['crime'])
 
-# print("Logistic Regression for comparison")
-# model = LogisticRegression(C=0.1, solver='lbfgs', multi_class='multinomial')
-# model.fit(training[features], training['crime'])
-# predicted = np.array(model.predict_proba(validation[features]))
-# print(log_loss(validation['crime'], predicted))
-# predicted_crime = np.argmax(predicted, axis=1)
-# print(accuracy_score(validation['crime'], predicted_crime))
+# Predict crimes of test dataset
+print("Build test data")
+test_data, _ = preprocess_dataframe(test)
 
-############################################################
-# print("Bernoulli 2")
-#
-# model = BernoulliNB()
-# model.fit(train_data[features], train_data['crime'])
-# predicted = model.predict_proba(test_data[features])
-#
-# print("Write results")
-# result = pd.DataFrame(predicted, columns=le_crime.classes_)
-# result.to_csv('testResult.csv', index=True, index_label='Id')
+print("Predict test labels")
+predicted = air_bnb.predict_proba(test_data[features])
 
-# features = ['Friday', 'Monday', 'Saturday', 'Sunday', 'Thursday', 'Tuesday',
-#             'Wednesday', 'BAYVIEW', 'CENTRAL', 'INGLESIDE', 'MISSION',
-#             'NORTHERN', 'PARK', 'RICHMOND', 'SOUTHERN', 'TARAVAL', 'TENDERLOIN']
+print("Write results")
+result = pd.DataFrame(predicted, columns=le_crime.classes_)
+result.to_csv('testResult.csv', index=True, index_label='Id')
 
-# features2 = [x for x in range(0, 24)]
-# features = features + features2
-# print(features)
+print("Train Keras")
+model = keras.Sequential([
+    keras.layers.Dense(80, input_dim=len(features), activation='relu'),
+    keras.layers.Dense(118, activation='relu'),
+    keras.layers.Dense(39, activation='softmax')
+])
+optimizer = keras.optimizers.Adam(lr=0.01)
+model.compile(optimizer=optimizer,
+              loss='sparse_categorical_crossentropy',
+              metrics=['sparse_categorical_accuracy'])
+model.fit(training[features], training['crime'], epochs=5, batch_size=1024)
+
+print("Predict labels")
+predicted = model.predict_proba(validation[features])
+
+print("Validate prediction")
+evaluate(predicted, validation['crime'])
+
+# Logistic Regression
+print("Train Logistic Regression for comparison")
+lr = LogisticRegression(C=0.1, solver='lbfgs', multi_class='multinomial')
+lr.fit(training[features], training['crime'])
+
+print("Predict labels")
+predicted = np.array(lr.predict_proba(validation[features]))
+
+print("Validate prediction")
+evaluate(predicted, validation['crime'])

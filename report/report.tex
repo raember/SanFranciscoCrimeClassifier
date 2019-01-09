@@ -1,4 +1,5 @@
-\documentclass[titlepage,12pt]{article}
+\documentclass[12pt,a4paper]{scrartcl}
+\usepackage[english]{babel}
 \usepackage{natbib}
 \bibliographystyle{agsm} % Harvard
 %\bibliographystyle{alpha}
@@ -18,23 +19,18 @@
     Ligatures=TeX,
     Numbers={OldStyle, Proportional}
 ]{DejaVu Sans Mono}
-%\usepackage{libertine}
-%\renewcommand*{\familydefault}{\sfdefault}
-%\usepackage{fontspec}
-%\newcommand{\fb}{\fontspec{Latin Modern Roman}}
-%\newcommand{\TU/lmr/m/n/17.28}{\fontspec{Latin Modern Roman}}
-%\newcommand{\TU/lmr/m/n/12}{\fontspec{Latin Modern Roman}}
-%\newcommand{\TU/lmr/m/n/8}{\fontspec{Latin Modern Roman}}
-%\newcommand{\TU/lmr/m/n/6}{\fontspec{Latin Modern Roman}}
 \usepackage{makeidx}
 \makeindex
+\usepackage{graphicx}
 \usepackage{xcolor}
 %\usepackage{termcol}
 %\loadcolors{terminalcolors}
 \input{terminalcolors}
+%base16/atelierforest.light
 %xcolors.net/euphrasia
 %collection/hund
 %collection/dawn
+
 \usepackage{listings}
 \lstset{
 	frame=none,
@@ -44,6 +40,7 @@
 	showstringspaces=false,
 	breaklines=true,
 	breakatwhitespace=true,
+	postbreak=\mbox{\textcolor{Red}{$\hookrightarrow$}\space},
 %	tabsize=4,
 	keepspaces=true,
 	columns=fullflexible,
@@ -63,10 +60,10 @@
 	backgroundcolor=\color{BackgroundColour!95!ForegroundColour},
 	rulecolor=\color{Black}
 }
-\newcommand{\inlinelisting}[1]{\colorbox{BackgroundColour!95!ForegroundColour}{\color{ForegroundColour!70!BackgroundColour}\lstinline[columns=fixed,language=python]{#1}}}
-\usepackage{pgfplotstable}
+\usepackage[space=true]{accsupp}
+\newcommand\emptyaccsupp[1]{\BeginAccSupp{ActualText={}}#1\EndAccSupp{}}
 \usepackage{varioref}
-\usepackage[colorlinks=true, linkcolor=Blue, citecolor=BoldYellow, plainpages=false, unicode, pdfencoding=auto ,backref=page]{hyperref}
+\PassOptionsToPackage{hyphens}{url}\usepackage[colorlinks=true, linkcolor=Blue, citecolor=BoldYellow, plainpages=false, unicode, pdfencoding=auto ,backref=page]{hyperref}
 \usepackage{cleveref}
 
 %\setlength{\parindent}{0pt}
@@ -80,15 +77,29 @@
 
 \renewcommand{\theequation}{\Roman{equation}}
 \makeindex
+\newcommand{\inlinelisting}[1]{\colorbox{BackgroundColour!95!ForegroundColour}{\color{ForegroundColour!70!BackgroundColour}\lstinline[columns=fixed,language=python]{#1}}}
+%\end{lstlisting} <- texmaker syntax highlight fix
 \begin{document}
-\maketitle
-
+\begin{titlepage}
+\centering
+\begin{figure}[htbp]\label{f:san_francisco}
+\includegraphics[width=\textwidth]{San-Francisco}\par\vspace{1cm}
+\caption{\cite{sf_pic}}
+\end{figure}
+{\huge\bfseries Kaggle-Challenge: San Francisco Crime Classification\par}
+\vspace{1.5cm}
+{\scshape\LARGE Nagaoka University of Technology \par}
+\vspace{2cm}
 \begin{center}
 \begin{tabular}{r l}
 Date: & \today\\
 Instructor: & Professor Yukawa
 \end{tabular}
 \end{center}
+\vfill
+{\Large\itshape Raphael Emberger\par}
+\vfill
+\end{titlepage}
 
 \tableofcontents
 \pagebreak
@@ -108,6 +119,13 @@ Of those, I was most interested in the classification of reported crimes \citep{
 
 \pagebreak
 \section{Abstract}\label{s:abstract}
+The first attempt to classify crimes based on date-time, district and coordinates was to build a neural network using \cite{keras}. This approach failed by remaining on the same level as always guessing the most prominent label("Larceny/Theft") - ~20\%. This reached rank 1058 out of 2335.
+
+The second attempt reached better results. This time, finished projects for the same challenge were used as reference to find problems with the first approach. This time, a Bernoulli Naïve Bayes classifier was used on the binarized dataset and reached a log-loss of 2.464 or 26.02\%, which raised the rank up to 675.
+
+The third and last attempt consisted of integrating the first attempt of using Keras into the second attempt. After some adjustment, the rank could be slightly improved once more: With a log-loss of 2.456(26.39\%), rank 664 could be claimed.
+
+The time for more improvement was not available because too much time was wasted on the first attempt, but the next steps would have included data enrichment and data manipulation.
 
 \pagebreak
 \section{Introduction}\label{s:intro}
@@ -118,7 +136,7 @@ When searching on the internet for documents about that challenge, there are mul
 \begin{itemize}
 \item A paper from \cite{slideshare_sf_crime_prediction}. 2 Naïve Bayes, Decision Tree, Random Forest and Support Vector Machines classifiers were used. Reached highest accuracy of 23.16\% with a Decision Tree.
 \item A blog post from \cite{efavdb_sf_crime_prediction}. In that project, a Bernoulli Naïves Bayes classifier was used. Reached a log-loss score of 2.58.
-\item A blog post from \cite{mattmurray_blog}. AdaBoost, Bagging, Extra Trees, Gradient Boosting, K-Nearest Neighbors, Random Forest classifiers and Logistic Regresson were used in this project. The dataset was enriched greatly by adding 9 other datasets(features like house prices, income, police and public transportation stations, healthcare center and homeless shelter locations, altitudes). Highest accuracy achieved with Gradient Boosted Trees, resulting in 45.7\%.
+\item A blog post from \cite{mattmurray_blog}. AdaBoost, Bagging, Extra Trees, Gradient Boosting, K-Nearest Neighbors, Random Forest classifiers and Logistic Regresson were used in this project. The dataset was enriched greatly by adding 9 other datasets (features like house prices, income, police and public transportation stations, healthcare center and homeless shelter locations, altitudes). Highest accuracy achieved with Gradient Boosted Trees, resulting in 45.7\%.
 \end{itemize}
 
 \subsection{Objective}\label{ss:objective}
@@ -139,7 +157,7 @@ Although the Kaggle challenge includes submitting an softmax array of the predic
 \pagebreak
 \section{Theoretical Principles}\label{s:theoretical_principles}
 \subsection{Loss Function}\label{ss:loss_function}
-The ranking of the results on the Kaggle leader board are based on the multi-class logarithmic loss function:
+The ranking of the results on the Kaggle leader board\citep{kgl_sf_crime} are based on the multi-class logarithmic loss function\footnote{The framework of \cite{keras} refers to the multi-class logarithmic loss function also as "categorical cross-entropy".}:
 
 \begin{align}\label{eqn:loss}
 &loss = -\frac1N\sum_{i=1}^N\sum_{j=1}^My_{ij}\log\left(p_{ij}\right)\\
@@ -174,7 +192,7 @@ Class 1 & Class 2 & Class 3\\\hline
 When those values are applied to \ref{eqn:loss}, we get a value of 0.49548. Of course, the closer the prediction is to the actual labels, the smaller the loss value will be.
 
 To calculate examples quickly on the python console, the following code can be used:
-\begin{lstlisting}[language=python,otherkeywords={as},label=lst:loglosscalculation,caption={Quick Log Loss Calculation}]
+\begin{lstlisting}[language=python,otherkeywords={as},label=lst:loglosscalculation,caption={Quick Log Loss Calculation in python}]
 import numpy as np
 from sklearn.metrics import log_loss
 labels = np.array([0.0, 1.0, 0.0])
@@ -212,19 +230,33 @@ Id&\textit{one column per class}\\\hline\hline
 
 \begin{table}[htbp]
 \centering
-\scriptsize
+\footnotesize
 \setlength\tabcolsep{2pt}
-\begin{tabular}{|ccccccc|}\hline
-Id&Dates&DayOfWeek&PdDistrict&Address&X&Y\\\hline\hline
-0&2015-05-10 23:59:00&Sunday&BAYVIEW&2000 Block of THOMAS AV&-122.39958770419&37.7350510103906\\
-1&2015-05-10 23:51:00&Sunday&BAYVIEW&3RD ST / REVERE AV&-122.391522893042&37.7324323864471\\
-2&2015-05-10 23:50:00&Sunday&NORTHERN&2000 Block of GOUGH ST&-122.426001954961&37.7922124386284\\
-3&2015-05-10 23:45:00&Sunday&INGLESIDE&4700 Block of MISSION ST&-122.437393972517&37.7214120621391\\
-4&2015-05-10 23:45:00&Sunday&INGLESIDE&4700 Block of MISSION ST&-122.437393972517&37.7214120621391\\
-5&2015-05-10 23:40:00&Sunday&TARAVAL&BROAD ST / CAPITOL AV&-122.459023622429&37.7131719025215\\
-6&2015-05-10 23:30:00&Sunday&INGLESIDE&100 Block of CHENERY ST&-122.42561645123&37.7393505144628\\
-7&2015-05-10 23:30:00&Sunday&INGLESIDE&200 Block of BANKS ST&-122.412652039792&37.7397501563121\\
-8&2015-05-10 23:10:00&Sunday&MISSION&2900 Block of 16TH ST&-122.418700097043&37.7651649409646\\\hline
+\begin{tabular}{|ccccc}\hline
+Id&Dates&DayOfWeek&PdDistrict&Address\\\hline\hline
+0&2015-05-10 23:59:00&Sunday&BAYVIEW&2000 Block of THOMAS AV\\
+1&2015-05-10 23:51:00&Sunday&BAYVIEW&3RD ST / REVERE AV\\
+2&2015-05-10 23:50:00&Sunday&NORTHERN&2000 Block of GOUGH ST\\
+3&2015-05-10 23:45:00&Sunday&INGLESIDE&4700 Block of MISSION ST\\
+4&2015-05-10 23:45:00&Sunday&INGLESIDE&4700 Block of MISSION ST\\
+5&2015-05-10 23:40:00&Sunday&TARAVAL&BROAD ST / CAPITOL AV\\
+6&2015-05-10 23:30:00&Sunday&INGLESIDE&100 Block of CHENERY ST\\
+7&2015-05-10 23:30:00&Sunday&INGLESIDE&200 Block of BANKS ST\\
+8&2015-05-10 23:10:00&Sunday&MISSION&2900 Block of 16TH ST\\
+9&2015-05-10 23:10:00&Sunday&CENTRAL&TAYLOR ST / GREEN ST\\\hline
+\end{tabular}
+\begin{tabular}{cc|}\hline
+X&Y\\\hline\hline
+-122.39958770418998&37.7350510103906\\
+-122.391522893042&37.7324323864471\\
+-122.426001954961&37.7922124386284\\
+-122.437393972517&37.7214120621391\\
+-122.437393972517&37.7214120621391\\
+-122.45902362242902&37.7131719025215\\
+-122.42561645123001&37.73935051446279\\
+-122.41265203979201&37.739750156312105\\
+-122.418700097043&37.7651649409646\\
+-122.413934584561&37.798886450641604\\\hline
 \end{tabular}
 \caption{test.csv(first 10 rows)}
 \label{tab:test.csv}
@@ -267,8 +299,6 @@ NONE&JEFFERSON ST / LEAVENWORTH ST&-122.419087676747&37.8078015516515\\\hline
 
 The two datasets differ slightly in their columns. The training dataset has added the labels(Category) but also Descript and Resolution, which will be ignored for this project.
 
-The labels consist of 39 classes of crimes:
-
 \begin{table}[htbp]
 \centering
 \scriptsize
@@ -292,117 +322,122 @@ VEHICLE THEFT&WARRANTS&WEAPON LAWS\\
 \caption{Crime classes}
 \label{tab:lables}
 \end{table}
-
+\pagebreak
 The classes occur in an unbalanced matter: "Larceny/Theft" is the most predominant recorded crime, taking up nearly 19.92\% of the dataset. For this reason, 19.92\% is considered the bottom line of accuracy.
+\pagebreak
 
 \subsection{First Approach}\label{ss:first_approach}
 For the first approach a \cite{keras} model on top of \cite{tensorflow} was chosen. For this, the first step was to pre-process the dataset to standardize it and properly feed it to the neural network.
 
-\subsubsection{Pre-Processing}\label{sss:preprocessing}
-To handle CSV files properly, a \inlinelisting{class CsvFile} class was created that represents a single csv file. When instantiated, it loads the csv file as a Pandas \inlinelisting{DataFrame}. Apart from an abstract \inlinelisting{def parse(self)} method, it implements per data field methods that prepare the respective column for a conversion to a numerical representation(i.e. \inlinelisting{def _prepare_date(self, date: datetime) -> datetime}). It also defines \inlinelisting{def toNpArray(self) -> ndarray}, which allows to access the data as a \inlinelisting{numpy} array.
+\subsubsection{Pre-Processing}\label{sss:preprocessing1}
+To handle CSV files properly, a \inlinelisting{CsvFile} class was created that represents a single csv file. When instantiated, it loads the csv file as a Pandas \inlinelisting{DataFrame}. Apart from an abstract \inlinelisting{def parse(self)}, it implements per-data-field functions that prepare the respective column for a conversion to a numerical representation(i.e. \inlinelisting{def _prepare_date(self, date: datetime)}). It also defines an export function \inlinelisting{def toNpArray(self) -> ndarray}, which allows to access the data as a \inlinelisting{numpy} array.
 
 From this basic class, three other classes were derived:
 \begin{itemize}
 \item \inlinelisting{class TestDataCsvFile}\\
-This class represents the \texttt{test.csv} file. It implements the missing \inlinelisting{parse(self)} method as follows:\\
-\begin{lstlisting}[language=python,label=lst:testdatacsvfile_parse,caption={Parse method if the TestDataCsvFile class}]
-def parse(self):
-    self.df = self.df_orig.copy()
-    self.log.debug('Parsing Dates')
-    self._transform_date()
-    self.log.debug('Parsing Day of the week')
-    self.df['DayOfWeek'] = self.df['DayOfWeek'].apply(self._prepare_day)
-    self.log.debug('Parsing District')
-    self.df['PdDistrict'] = self.df['PdDistrict'].apply(self._prepare_district)
-    self.log.debug('Parsing Address')
-    self.df['Address'] = self.df['Address'].apply(self._prepare_address)
-    self.log.debug('Parsing Longitude')
-    self.df['X'] = self.df['X'].apply(self._prepare_longitude)
-    self.log.debug('Parsing Latitude')
-    self.df['Y'] = self.df['Y'].apply(self._prepare_latitude)
-    self.log.info('Parsed dataframe')
-\end{lstlisting}
+This class represents the \texttt{test.csv} file. It implements the missing \inlinelisting{parse(self)} method.
 \item \inlinelisting{class TrainDataCsvFile}\\
-This class represents the sample part of the \texttt{train.csv} file. It implements the \inlinelisting{parse(self)} method in a similar fashion.
+This class represents the sample part of the \texttt{train.csv} file. It implements the \inlinelisting{parse(self)} method.
 \item \inlinelisting{class TrainLabelsCsvFile}\\
-This class represents the label part of the \texttt{train.csv} file. When instantiating, it can make a link to an already existing \inlinelisting{TrainDataCsvFile} class, to prevent loading the same csv file a second time. It implements the \inlinelisting{parse(self)} method in a similar fashion.
+This class represents the label part of the \texttt{train.csv} file. When instantiating, it can make a link to an already existing \inlinelisting{TrainDataCsvFile} class, to prevent loading the same csv file a second time. It implements the \inlinelisting{parse(self)} method.
 \end{itemize}
 
-\subsubsection{Keras Model}\label{sss:keras_model}
-To build the model, a dedicated \inlinelisting{Model} class was created. This class operates as a Keras model factory, using the \inlinelisting{def get_model()} method to either create and train a model or load it's weights and parameters from a file and return the model.
+All the \inlinelisting{CsvFile} derived classes support loading their already preprocessed data from the disk. This was implemented to reduce calculation time when performing multiple runs.
+
+\paragraph{Feature Scaling and Mean Normalization}\label{p:feature_scaling_mean_normal}
+Apart from converting the data into integers or floats, the \inlinelisting{_prepare_X} functions also perform feature scaling(usually to a $[-1, 1]$ set - sometimes $[0, 1]$) and mean normalization(i.e. the coordinates $X$ and $Y$).
+
+\subsubsection{Keras Model}\label{sss:keras_model1}
+To build the model, a dedicated \inlinelisting{Model} class was created. This class operates as a Keras model factory, using the \inlinelisting{get_model} to either create and train a model or load it's weights and parameters from a file and return the model.
 
 The layers of the model changed greatly over time. This is the the last version of the model:
 
-\begin{lstlisting}[language=python,label=lst:keras_model,caption={Keras model}]
-model = keras.Sequential([
-    keras.layers.Dense(128, input_shape=(train_data.shape[1],), activation='relu'),
-    keras.layers.Dense(128, activation='relu'),
-    keras.layers.Dense(39, activation='softmax')
-    # keras.layers.Flatten(input_shape=(28, 28)),
-    # keras.layers.Dense(128, activation=tf.nn.relu),
-    # keras.layers.Dense(10, activation=tf.nn.softmax)
-])
+\lstinputlisting[language=python, firstline=28, firstnumber=28, lastline=41,label=lst:keras_model,caption={Keras model - model.py}]{../model.py}
 
-optimizer = keras.optimizers.Adam(lr=0.01)
-model.compile(optimizer=optimizer,
-              loss='sparse_categorical_crossentropy',
-              metrics=['accuracy'])
-self.log.info("Compiled model")
-model.fit(train_data, train_labels, epochs=5, batch_size=20)
-self.log.info("Trained model")
-\end{lstlisting}
+\subsubsection{Classification process}\label{sss:classification_process1}
+The classification process was written using the classes created in \ref{sss:preprocessing1} and \ref{lst:keras_model}(\ref{sss:keras_model1}):
 
-\subsubsection{Classification process}\label{sss:classification_process}
-The classification process was easily written using the classes created in \ref{sss:preprocessing} and \ref{sss:keras_model}:
+\lstinputlisting[language=python, firstline=34, firstnumber=34, lastline=60,label=lst:main_py,caption={Classification process(first approach) - main.py}]{../main.py}
 
-\begin{lstlisting}[language=python,label=lst:main_py,caption={main.py}]
-trainsamplesfile = TrainDataCsvFile()
-trainlabelfile = TrainLabelsCsvFile(trainsamplesfile)
-testsamplesfile = TestDataCsvFile()
-for file in [trainsamplesfile, trainlabelfile, testsamplesfile]:
-    if args.prep_data or not file.prep_file_exists():
-        file.parse()
-        file.save()
-    else:
-        file.load()
+\subsubsection{Results}\label{sss:results1}
+When using this setup, various settings did not raise the accuracy in any way. The accuracy value usually hovered barely below 20\%, which coincides with the bottom line described in \ref{ss:dataset} and could at best get to rank 1058. It was suspected that bad preprocessing of the dataset as well as the lack of knowledge and experience in neural networks was the cause for the lack of progress.
 
-if args.train:
-    mdl = Model().get_model(
-        trainsamplesfile.toNpArray(),
-        trainlabelfile.toNpArray()
-    )
-else:
-    mdl = Model().get_model()
+After various unfruitful tries, this approach had to be abandoned because of the lack in progress due to lack of knowledge and experience with Keras.
 
-# predictions = mdl.predict(testfile.toNpArray())
-predictions = mdl.predict(trainsamplesfile.toNpArray())
-for i in range(0, 19):
-    predicted = trainlabelfile.CATEGORIES[np.argmax(predictions[i])]
-    actual = trainlabelfile.get(i)
-    logging.info("{} ?= {}".format(actual, predicted))
-\end{lstlisting}
+\pagebreak
+\subsection{Second Approach}\label{ss:second_approach}
+After an input from Prof. Yukawa, a new approach was established. This step consisted of using finished projects for this challenge as reference. For this, the project of \cite{efavdb_sf_crime_prediction} was chosen.
 
-When using this setup, training for even 25 epochs did not raise the accuracy in any way. The accuracy value usually hovered barely below 20\%, which coincides with the bottom line described in \ref{ss:dataset}.
+The system now relies on a Bernoulli Naïve Bayes classifier, which in contrast to the first approach \ref{ss:first_approach} does not require the system to build up layers to construct. It also uses a Logistic Regression algorithm to have a bar for comparison to be able to determine progress.
 
-After multiple unfruitful tries, this approach had to be abandoned because of the lack in progress due to lack of knowledge and experience with neural networks.
+\subsubsection{Pre-processing}\label{sss:preprocessing2}
+In this approach, the data was processed differently. To prevent the algorithm to search for patterns according to the principle of locality and simplify the data by binarization, columns were split up into several different dummy columns, namely:
+
+\begin{itemize}
+\item Minutes(m0 - m59)
+\item Hours(H1 - H12)
+\item Days(D1 - D31)
+\item Months(M1 - M12)
+\item Years(Y2003 - Y2015)
+\item Weekdays(Monday - Sunday)
+\item Districts(Bayview - Tenderloin)
+\end{itemize}
+
+\lstinputlisting[language=python, firstline=30, firstnumber=30, lastline=44,label=lst:newmain_py_preprocess,caption={Pre-processing method - newmain.py}]{../newmain.py}
+
+\lstinputlisting[language=python, firstline=53, firstnumber=53, lastline=82,label=lst:newmain_py_bnb,caption={Bernoulli Naïve Bayes fitting- newmain.py}]{../newmain.py}
+
+\lstinputlisting[language=python, firstline=114, firstnumber=114, lastline=123,label=lst:newmain_py_lr,caption={Logistic Regression fitting - newmain.py}]{../newmain.py}
+
+This lead to an expansion of the number of columns from 6 to 159, dropping column "Address" and binarizing all the other columns except for the coordinates, which remain floats.
+
+\subsubsection{Results}\label{sss:results2}
+This new classification system reached a value of 2.464 with the Bernoulli Naïve Bayes classifier. This log-loss value corresponds to an accuracy of 26.02\%. For comparison, the Logistic Regression reached 2.591 with an accuracy of 24.43\%. This result would correspond to rank 675 on the Kaggle leaderboard.
+
+To finalize this project, it was decided to combine the findings of those two approaches to further advance in this challenge.
+
+\pagebreak
+\subsection{Third approach}\label{ss:third_approach}
+Although the second approach \ref{ss:second_approach} was at an acceptable level, the failed first attempt was decided to be merged into the second one as comparison and to draw conclusions about what went wrong the first time. For this the classes written in the first approach were completely abandoned and only the core code of the first approach was amended and integrated into the script of \ref{ss:second_approach}.
+
+\subsubsection{Results}\label{sss:results3}
+The amended Keras model showed results on the same level as the Bernoulli Naïves Bays classifier from \ref{sss:classification_process1}. After a few tries, occasionally even slightly better results were reached:
+
+\lstinputlisting[language=python, firstline=47, firstnumber=47, lastline=50,label=lst:newmain_py_evaluate,caption={Evaluation method - newmain.py}]{../newmain.py}
+
+\lstinputlisting[language=python, firstline=95, firstnumber=95, lastline=111,label=lst:newmain_py_keras,caption={Keras model integrated - newmain.py}]{../newmain.py}
+
+With this configuration the model reached a log-loss of 2.456 (accuracy: 26.39\%), which was equivalent to rank 664. Which satisfies our definition of Done.
 
 \pagebreak
 \section{Results}\label{s:results}
-
+Although the first approach lead to some measurable results(rank 1058), there were still many improvements to be made. Some of them were successfully implemented in the second approach and lead to an advance in rank to 675(log-loss: 2.464). After applying those findings into the first approach by merging both attempts, a further - although small - improvement could be made: The rank improved to 664(log-loss: 2.456).
 \pagebreak
+
 \section{Conclusion}\label{s:conclusion}
+During this project, a number of mistakes have been committed. The biggest one was investing too much time into the first attempt, instead of looking up finished projects for reference. However, this is only clear now in hindsight, as at the point in time, no disadvantage could be identified. Nevertheless did this loss in time cause the project to halt at rank 664(log-loss: 2.456), instead of advancing further due to further research.
+
+Another problem was the lack of knowledge on the part of constructing neural networks with APIs like Keras. This lead to a number of unnecessary attempts on improvement on the wrong front-line. Much time was spent on implementing the conversion from data into integer representation, feature scaling and mean normalization, even though later in the process(see \ref{sss:preprocessing2}) it turned out that binarizing the data was much faster in both programming and execution and brought better results.
+
+\subsection{Future Considerations}\label{ss:future_considerations}
+For future projects of similar nature, a better theoretical foundation is required. However, the mistakes made in this project were very insightful and helped in understanding general processes of creating neural networks.
+
+If more time was available, the next step would have been enriching the dataset by relying on additional statistics and data from the internet. Other cited projects have relied on this method as well and just careless perusal makes this step seem very promising. The provided dataset by Kaggle after all only included date-time, district name and coordinates(address as well, but this was ignored in this project).
+
+Another point to consider would be to process the data more: For example evening out distributions that otherwise are heavily uneven could lead to the neural network to not just abandon those samples in favour of sample types that are more prominent.
 
 \pagebreak
 \section{Listings}\label{s:listings}
 \bibliography{reference}\label{bib}
-\newpage
-\listoffigures\label{sec:ListOfFigures}
-\newpage
-\listoftables\label{sec:ListOfTables}
-\newpage
-\lstlistoflistings\label{sec:ListOfListings}
+\listoffigures\label{s:ListOfFigures}
+\listoftables\label{s:ListOfTables}
+\lstlistoflistings\label{s:ListOfListings}
 
 \pagebreak
 \appendix
 \section{Appendix}\label{s:appendix}
+\lstinputlisting[language=python,label=lst:main_py,caption={main.py}]{../main.py}
+\lstinputlisting[language=python,label=lst:model_py,caption={model.py}]{../model.py}
+\lstinputlisting[language=python,label=lst:preprocessor_py,caption={preprocessor.py}]{../preprocessor.py}
+\lstinputlisting[language=python,label=lst:newmain_py,caption={newmain.py}]{../newmain.py}
 \end{document}

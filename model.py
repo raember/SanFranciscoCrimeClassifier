@@ -1,5 +1,3 @@
-#!/bin/env python3
-
 import logging as log
 
 # from tensorflow import keras
@@ -28,28 +26,18 @@ class Model:
         :return:
         """
         model = keras.Sequential([
-            keras.layers.Dense(128, input_shape=(train_data.shape[1],), activation='relu'),
-            keras.layers.Dense(128, activation='relu'),
+            keras.layers.Dense(16, input_shape=(train_data.shape[1],), activation='relu'),
+            keras.layers.Dense(64, activation='relu'),
             keras.layers.Dense(39, activation='softmax')
-            # keras.layers.Flatten(input_shape=(28, 28)),
-            # keras.layers.Dense(128, activation=tf.nn.relu),
-            # keras.layers.Dense(10, activation=tf.nn.softmax)
         ])
         self.log.info("Constructed model")
-        # optimizer = tf.train.AdamOptimizer()
-        # optimizer = keras.optimizers.SGD(lr=0.1, momentum=0.0, decay=0.0, nesterov=False)
-        optimizer = keras.optimizers.Adam(lr=0.01)
+        optimizer = keras.optimizers.Adam(lr=0.04)
         model.compile(optimizer=optimizer,
                       loss='sparse_categorical_crossentropy',
                       metrics=['accuracy'])
         self.log.info("Compiled model")
 
-        # Delete data to make the training faster
-        # train_data = numpy.delete(train_data, numpy.s_[100::], axis=0)
-        # train_labels = numpy.delete(train_labels, numpy.s_[100::], axis=0)
-
-        # Train model
-        model.fit(train_data, train_labels, epochs=5, batch_size=20)
+        model.fit(train_data, train_labels, epochs=5, batch_size=200)
         self.log.info("Trained model")
 
         if test_data is not None and test_labels is not None:

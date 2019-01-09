@@ -4,6 +4,7 @@ import argparse
 import logging
 
 import tensorflow as tf
+from sklearn.metrics import log_loss, accuracy_score
 from tensorflow import keras
 
 from model import Model
@@ -39,38 +40,33 @@ for file in [trainsamplesfile, trainlabelfile, testsamplesfile]:
         file.save()
     else:
         file.load()
-# for key in trainlabelfile.stats:
-#     trainlabelfile.stats[key] /= trainlabelfile.count
-#     print("{} : {}%".format(trainlabelfile.stats[key] * 100, trainlabelfile.CATEGORIES[key]))
-# exit(0)
-# print(trainsamplesfile.df.columns.values)
-# print(trainlabelfile.df.columns.values)
-# exit(0)
-# print(trainsamplesfile.get(int(0)))
-# exit(0)
-# for i in range(0, 10):
-#     # (date, _, _, address, lat, long) = data.get(i)
-#     print(trainfile.get(i), trainlabelfile.get(i))
-#     # webbrowser.open("https://www.google.ch/maps/@{},{},58m/data=!3m1!1e3".format(lat, long))
-# exit(0)
-#
-# def load_prediction_data():
-#     return np.loadtxt('test.csv', delimiter=',', dtype=np.float32)
-# pred = load_prediction_data()
 
 if args.train:
-    # scaler = sklearn.preprocessing.MinMaxScaler(feature_range=(-1, 1))
     mdl = Model().get_model(
-        # scaler.fit_transform(trainsamplesfile.toNpArray()).reshape(trainsamplesfile.df.shape),
         trainsamplesfile.toNpArray(),
         trainlabelfile.toNpArray()
     )
 else:
     mdl = Model().get_model()
 
-# predictions = mdl.predict(testfile.toNpArray())
 predictions = mdl.predict(trainsamplesfile.toNpArray())
+print("LogLoss: {}".format(log_loss(trainlabelfile.toNpArray(), predictions)))
+predicted_crime = np.argmax(predictions, axis=1)
+print("Accuracy: {}%".format(accuracy_score(trainlabelfile.toNpArray(), predicted_crime) * 100))
+
 for i in range(0, 19):
     predicted = trainlabelfile.CATEGORIES[np.argmax(predictions[i])]
     actual = trainlabelfile.get(i)
     logging.info("{} ?= {}".format(actual, predicted))
+
+# for key in trainlabelfile.stats:
+#     trainlabelfile.stats[key] /= trainlabelfile.count
+#     print("{} : {}%".format(trainlabelfile.stats[key] * 100, trainlabelfile.CATEGORIES[key]))
+
+# for i in range(0, 10):
+#     # (date, _, _, address, lat, long) = data.get(i)
+#     print(trainfile.get(i), trainlabelfile.get(i))
+#     webbrowser.open(
+#         "https://www.google.ch/maps/"
+#         "@{},{},58m/data=!3m1!1e3".format(lat, long)
+#     )
