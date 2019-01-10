@@ -154,6 +154,13 @@ We're also encouraging you to explore the dataset visually. What can we learn ab
 
 Although the Kaggle challenge includes submitting an softmax array of the predictions of the test data, this objectives shifts towards self evaluation on the training set. The reason for this is that the challenge is already over and self evaluation was considered an easier approach to measure the success of the system.
 
+\begin{center}
+\begin{figure}[htbp]\label{f:sf_crime_map}
+\includegraphics[width=\textwidth]{sf_top_crimes_map}
+\caption{\cite{sf_crime_map}}
+\end{figure}
+\end{center}
+
 \pagebreak
 \section{Theoretical Principles}\label{s:theoretical_principles}
 \subsection{Loss Function}\label{ss:loss_function}
@@ -385,6 +392,8 @@ In this approach, the data was processed differently. To prevent the algorithm t
 
 \lstinputlisting[language=python, firstline=30, firstnumber=30, lastline=44,label=lst:newmain_py_preprocess,caption={Pre-processing method - newmain.py}]{../newmain.py}
 
+\lstinputlisting[language=python, firstline=47, firstnumber=47, lastline=50,label=lst:newmain_py_evaluate,caption={Evaluation method - newmain.py}]{../newmain.py}
+
 \lstinputlisting[language=python, firstline=53, firstnumber=53, lastline=82,label=lst:newmain_py_bnb,caption={Bernoulli Naïve Bayes fitting- newmain.py}]{../newmain.py}
 
 \lstinputlisting[language=python, firstline=114, firstnumber=114, lastline=123,label=lst:newmain_py_lr,caption={Logistic Regression fitting - newmain.py}]{../newmain.py}
@@ -402,8 +411,6 @@ Although the second approach \ref{ss:second_approach} was at an acceptable level
 
 \subsubsection{Results}\label{sss:results3}
 The amended Keras model showed results on the same level as the Bernoulli Naïves Bays classifier from \ref{sss:classification_process1}. After a few tries, occasionally even slightly better results were reached:
-
-\lstinputlisting[language=python, firstline=47, firstnumber=47, lastline=50,label=lst:newmain_py_evaluate,caption={Evaluation method - newmain.py}]{../newmain.py}
 
 \lstinputlisting[language=python, firstline=95, firstnumber=95, lastline=111,label=lst:newmain_py_keras,caption={Keras model integrated - newmain.py}]{../newmain.py}
 
